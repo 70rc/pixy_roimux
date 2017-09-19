@@ -41,6 +41,7 @@ namespace pixy_roimux {
         m_discSigmaRoiNegPeak   = getJsonMember("discSigmaRoiNegPeak", rapidjson::kNumberType).GetDouble();
         m_discAbsRoiNegPeak     = getJsonMember("discAbsRoiNegPeak", rapidjson::kNumberType).GetDouble();
         m_discSigmaRoiNegTrail  = getJsonMember("discSigmaRoiNegTrail", rapidjson::kNumberType).GetDouble();
+        m_discRange             = getJsonMember("discRange", rapidjson::kNumberType).GetUint();
         m_pcaScaleFactor        = getJsonMember("pcaScaleFactor", rapidjson::kNumberType).GetDouble();
         m_pcaMaxIterations      = getJsonMember("pcaMaxIterations", rapidjson::kNumberType).GetUint();
         m_kalmanRngSeed         = getJsonMember("kalmanRngSeed", rapidjson::kNumberType).GetUint();

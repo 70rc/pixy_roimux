@@ -29,6 +29,7 @@
   "discSigmaRoiNegPeak": 3.0,
   "discAbsRoiNegPeak": 100,
   "discSigmaRoiNegTrail": 1.0,
+  "discRange": 100,
   "pcaScaleFactor": 3.0,
   "pcaMaxIterations": 3,
   "kalmanPosErr": [0.3, 0.3, 0.3],
