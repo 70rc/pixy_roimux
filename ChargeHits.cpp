@@ -44,12 +44,12 @@ namespace pixy_roimux {
             //double thrNegLead       = noiseParams.first - t_discSigmaNegLead * noiseParams.second;
             double thrNegPeak       = noiseParams.first - std::max(t_discSigmaNegPeak * noiseParams.second, t_discAbsNegPeak);
             double thrNegTrail      = noiseParams.first - t_discSigmaNegTrail * noiseParams.second;
-            std::cout << "noiseBaseline " << noiseBaseline << std::endl;
-            std::cout << "thrPosLead " << thrPosLead << std::endl;
-            std::cout << "thrPosPeak " << thrPosPeak << std::endl;
-            std::cout << "thrPosTrail " << thrPosTrail << std::endl;
-            std::cout << "thrNegPeak " << thrNegPeak << std::endl;
-            std::cout << "thrNegTrail " << thrNegTrail << std::endl;
+            //std::cout << "noiseBaseline " << noiseBaseline << std::endl;
+            //std::cout << "thrPosLead " << thrPosLead << std::endl;
+            //std::cout << "thrPosPeak " << thrPosPeak << std::endl;
+            //std::cout << "thrPosTrail " << thrPosTrail << std::endl;
+            //std::cout << "thrNegPeak " << thrNegPeak << std::endl;
+            //std::cout << "thrNegTrail " << thrNegTrail << std::endl;
             unsigned posPeakSample = static_cast<unsigned>(channelHisto->GetMaximumBin()) - 1;
             int posPeakValue = static_cast<int>(channelHisto->GetBinContent(posPeakSample + 1));
             while (posPeakValue >= thrPosPeak) {
@@ -136,7 +136,7 @@ namespace pixy_roimux {
                         hit.negPulseHeight = 0;
                         hit.posPulseWidth = hit.lastSample - hit.firstSample + 1;
                         hit.negPulseWidth = 0;
-                        std::cout << " posPulseWidth " << hit.posPulseWidth << std::endl;
+                        //std::cout << "posPulseWidth " << hit.posPulseWidth << std::endl;
                     }
                     hit.pulseIntegral = 0;
                     hit.pulseRaw.clear();
