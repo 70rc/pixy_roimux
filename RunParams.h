@@ -183,6 +183,13 @@ namespace pixy_roimux {
         }
 
         ///
+        /// Get the threshold in sigma of noise Gaussian for the noise filter.
+        ///
+        double getNoiseFilterSigma() const {
+            return m_noiseFilterSigma;
+        }
+
+        ///
         /// Get the threshold in sigma of noise Gaussian for the discrimination of the leading edge of a pixel pulse.
         ///
         double getDiscSigmaPixelLead() const {
@@ -453,6 +460,11 @@ namespace pixy_roimux {
         /// Number of samples to process.
         ///
         unsigned m_nSamples;
+
+        ///
+        /// Threshold in sigma of noise Gaussian for the noise filter.
+        ///
+        double m_noiseFilterSigma;
 
         ///
         /// Threshold in sigma of noise Gaussian for the discrimination of the leading edge of a pixel pulse.

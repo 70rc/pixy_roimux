@@ -29,6 +29,7 @@ namespace pixy_roimux {
         m_adcLsb                = getJsonMember("adcLsb", rapidjson::kNumberType).GetDouble();
         m_preampGain            = getJsonMember("preampGain", rapidjson::kNumberType).GetDouble();
         m_nSamples              = getJsonMember("nSamples", rapidjson::kNumberType).GetUint();
+        m_noiseFilterSigma      = getJsonMember("noiseFilterSigma", rapidjson::kNumberType).GetDouble();
         m_discSigmaPixelLead    = getJsonMember("discSigmaPixelLead", rapidjson::kNumberType).GetDouble();
         m_discSigmaPixelPeak    = getJsonMember("discSigmaPixelPeak", rapidjson::kNumberType).GetDouble();
         m_discAbsPixelPeak      = getJsonMember("discAbsPixelPeak", rapidjson::kNumberType).GetDouble();

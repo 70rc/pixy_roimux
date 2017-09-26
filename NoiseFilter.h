@@ -14,6 +14,7 @@
 #include "TH1D.h"
 #include "TH2S.h"
 #include "ChargeData.h"
+#include "RunParams.h"
 
 
 namespace pixy_roimux {
@@ -26,14 +27,7 @@ namespace pixy_roimux {
         ///
         /// Constructor
         ///
-        NoiseFilter() {};
-
-        ///
-        /// Set the threshold below which a sample is considered as noise in sigma of the Gaussian fit to the noise.
-        ///
-        void setThrSigma(const double t_thrSigma) {
-            m_thrSigma = t_thrSigma;
-        }
+        explicit NoiseFilter(const RunParams &t_runParams) : m_runParams(t_runParams) {};
 
         ///
         /// Compute mean and standard deviation of the noise by fitting a Gaussian to the amplitude distribution of the
@@ -56,9 +50,9 @@ namespace pixy_roimux {
         void filterHisto(TH2S &t_histo);
 
         ///
-        /// Threshold in sigma of the Gaussian fit to the noise below which a sample is considered to be noise.
+        /// Run parameters.
         ///
-        double m_thrSigma = 1.;
+        const RunParams &m_runParams;
     };
 }
 

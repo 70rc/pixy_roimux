@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 
     // Noise filter
     std::cout << "Filtering chargeData...\n";
-    pixy_roimux::NoiseFilter noiseFilter;
+    pixy_roimux::NoiseFilter noiseFilter(runParams);
     noiseFilter.filterData(chargeData);
 
     // Find the chargeHits.

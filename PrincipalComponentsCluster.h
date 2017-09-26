@@ -20,7 +20,7 @@
 namespace pixy_roimux {
     class PrincipalComponentsCluster {
     public:
-        PrincipalComponentsCluster(const RunParams &t_runParams) : m_runParams(t_runParams) {};
+        explicit PrincipalComponentsCluster(const RunParams &t_runParams) : m_runParams(t_runParams) {};
 
         void analyseEvents(
                 ChargeHits &t_chargeHits,

@@ -40,8 +40,8 @@ namespace pixy_roimux{
             auto channelHisto = std::shared_ptr<TH1D>(t_histo.ProjectionX("channelHisto", (channel + 1), (channel + 1)));
             //std::cout << "channel: " << channel << std::endl;
             std::pair<double, double> noiseParams = computeNoiseParams(channelHisto, true);
-            thresholds.at(channel).first = noiseParams.first - m_thrSigma * noiseParams.second;
-            thresholds.at(channel).second = noiseParams.first + m_thrSigma * noiseParams.second;
+            thresholds.at(channel).first = noiseParams.first - m_runParams.getNoiseFilterSigma() * noiseParams.second;
+            thresholds.at(channel).second = noiseParams.first + m_runParams.getNoiseFilterSigma() * noiseParams.second;
         }
         for (unsigned sample = 0; sample < nSamples; ++sample) {
             double commonModeNoise = 0.;
