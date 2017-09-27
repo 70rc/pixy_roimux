@@ -48,9 +48,9 @@ namespace pixy_roimux {
         TVector3 trackPos(t_event.principalComponents.avePosition.at(0),
                           t_event.principalComponents.avePosition.at(1),
                           t_event.principalComponents.avePosition.at(2));
-        TVector3 trackMom(-t_event.principalComponents.eigenVectors.at(0).at(0),
-                          -t_event.principalComponents.eigenVectors.at(0).at(1),
-                          -t_event.principalComponents.eigenVectors.at(0).at(2));
+        TVector3 trackMom(t_event.principalComponents.eigenVectors.at(0).at(0),
+                          t_event.principalComponents.eigenVectors.at(0).at(1),
+                          t_event.principalComponents.eigenVectors.at(0).at(2));
         trackMom.SetMag(m_runParams.getKalmanMomMag());
         std::multimap<double, unsigned> hitOrderZ;
         unsigned hitId = 0;

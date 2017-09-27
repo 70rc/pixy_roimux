@@ -8,7 +8,7 @@ void makeGeom()
     TGeoMedium *liquidArgon = new TGeoMedium("liquidArgon", 1, liquidArgonMat);
 
     const double tpcRadius = 5.05; //cm
-    const double tpcLength = 60.; //cm
+    const double tpcLength = 58.6; //cm
     const double worldDx = 4 * tpcRadius;
     const double worldDy = 4 * tpcRadius;
     const double worldDz = 2 * tpcLength;
@@ -16,7 +16,7 @@ void makeGeom()
     TGeoVolume *top = gGeoManager->MakeBox("world", liquidArgon, worldDx, worldDy, worldDz);
     gGeoManager->SetTopVolume(top); // mandatory !
 
-    TGeoVolume *tpc = gGeoManager->MakeTube("tpc", liquidArgon, 0., tpcRadius, tpcLength);
+    TGeoVolume *tpc = gGeoManager->MakeTube("tpc", liquidArgon, 0., tpcRadius, (0.5 * tpcLength));
     top->AddNode(tpc, 1, gGeoIdentity);
 
     //--- close the geometry

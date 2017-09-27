@@ -256,9 +256,9 @@ namespace pixy_roimux {
                                            * m_runParams.getPixelPitch() + m_runParams.getTpcOrigin().at(0));
                 hit.y = static_cast<float>((m_runParams.getRoiCoor(roiId, 1) + m_runParams.getPixelCoor(pixelId, 1))
                                            * m_runParams.getPixelPitch() + m_runParams.getTpcOrigin().at(1));
-                hit.z = static_cast<float>(m_runParams.getDriftLength() / 2. + m_runParams.getTpcOrigin().at(2)
-                                           - (pixelHit->posPeakSample - m_runParams.getAnodeSample())
-                                             * m_runParams.getSampleTime() * m_runParams.getDriftSpeed());
+                hit.z = static_cast<float>((pixelHit->posPeakSample - m_runParams.getAnodeSample())
+                                           * m_runParams.getSampleTime() * m_runParams.getDriftSpeed()
+                                           + m_runParams.getTpcOrigin().at(2));
                 // Calculate charge in C.
                 hit.charge = static_cast<float>(pixelHit->pulseIntegral *
                                                 (m_runParams.getAdcLsb() / m_runParams.getPreampGain()));
