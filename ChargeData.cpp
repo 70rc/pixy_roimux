@@ -51,10 +51,10 @@ namespace pixy_roimux {
             const std::string t_rootFileName,
             const std::vector<unsigned> &t_eventIds,
             const unsigned t_subrunId,
-            const pixy_roimux::RunParams &t_map) :
+            const pixy_roimux::RunParams &t_runParams) :
             m_eventIds(t_eventIds),
             m_subrunId(t_subrunId),
-            m_runParams(t_map) {
+            m_runParams(t_runParams) {
         // Preallocate the DAQ histo vector for speed.
         m_daqHistos.resize(m_eventIds.size());
         // Open ROOT file read-only.
@@ -100,11 +100,11 @@ namespace pixy_roimux {
             const std::vector<std::pair<const TH2S *, const TH2S *>> &t_daqHistos,
             const std::vector<unsigned> &t_eventIds,
             const unsigned t_subrunId,
-            const pixy_roimux::RunParams &t_map) :
+            const pixy_roimux::RunParams &t_runParams) :
             m_daqHistos(t_daqHistos),
             m_eventIds(t_eventIds),
             m_subrunId(t_subrunId),
-            m_runParams(t_map) {
+            m_runParams(t_runParams) {
         // As we get all the necessary data passed to the constructor, we just need to convert the DAQ histos to readout
         // histos.
         convertHistos();
@@ -116,9 +116,9 @@ namespace pixy_roimux {
             const TH2S *const t_colHisto,
             const unsigned t_eventId,
             const unsigned t_subrunId,
-            const pixy_roimux::RunParams &t_map) :
+            const pixy_roimux::RunParams &t_runParams) :
             m_subrunId(t_subrunId),
-            m_runParams(t_map) {
+            m_runParams(t_runParams) {
         // Fill the DAQ histos passed to the constructor into the DAQ histo vector, as the convertHistos() method reads from
         // this.
         m_daqHistos.push_back(std::pair<const TH2S *, const TH2S *>(t_indHisto, t_colHisto));

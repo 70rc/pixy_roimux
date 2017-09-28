@@ -23,24 +23,26 @@
 
 
 namespace pixy_roimux {
-///
-/// This class implements a 3D hit finder using ROOT's TSpectrum class for peak finding and a constant fraction
-/// discrimination for timing. As input it needs a viperData object containing the raw data and a viperMap object for
-/// the pixel and ROI coordinates. The parameters for the peak finder of the TSpectrum instance can be set by the user.
-/// The timing works by finding the first and the last sample of the pixel and ROI pulses by means of a constant
-/// fraction of the peak value of the pulse. The fraction can be set independently for pixel and ROIs and start and end
-/// of the pulse, respectively. After this, the found pixel pulses are searched for overlaps with ROI pulses and all
-/// matches are written to both a vector that contains the indices of all matched ROI pulses for a pixel pulse and vice
-/// versa. Besides, the raw pulse, its integral and 3D hit candidates are calculated. All the data is stored in a vector
-/// containing one viperEvent struct per event. They can be accessed by const reference or by reference.
-///
+    /// \brief Class implementing a hit finder generating 3D spacepoints.
+    ///
+    /// As input it needs a ChargeData object containing the raw data and a RunParams object for the pixel and ROI
+    /// coordinates and the peak finder thresholds. For the pulse detection, the maximum of a channel histogram is
+    /// first compared against a threshold in terms of RMS of the noise. In case it is above threshold, the pulse is
+    /// scanned until the leading and trailing edge have fallen below a respective threshold. In case of a bipolar pulse,
+    /// the scan goes on to find the zero crossing, the negative peak and then the trailing edge crossing another
+    /// threshold. If all thresholds were found, the pulse is stored and deleted from the original histogram. If not,
+    /// the scanned range is deleted from the original histogram. Then, the whole process starts again by finding the
+    /// next new maximum in the histogram. The process stops when the new maximum of the histogram is below the peak
+    /// threshold. After this, the found pixel pulses are searched for overlaps with ROI pulses and all matches are
+    /// written to both a vector that contains the indices of all matched ROI pulses for a pixel pulse and vice versa.
+    /// Besides, the raw pulse, its integral and 3D hit candidates are calculated. All the data is stored in a vector
+    /// containing one Event struct per event. They can be accessed by const reference or by reference.
     class ChargeHits {
     public:
 
-        ///
-        /// Constructor reading raw data from a viperData object.
-        /// Needs a viperMap object for the pixel and ROI coordinates.
-        ///
+        /// \brief Constructor.
+        /// \param t_chargeData raw data.
+        /// \param t_runParams run parameters.
         ChargeHits(
                 const ChargeData &t_chargeData,
                 const RunParams &t_runParams) :
@@ -48,21 +50,18 @@ namespace pixy_roimux {
                 m_runParams(t_runParams) {
         }
 
-        ///
-        /// Find hits.
-        ///
+        /// \brief Run the hit finder.
+        /// \param t_bipolarRoiHits detect and store the negative part of ROI pulses.
         void findHits(const bool t_bipolarRoiHits = true);
 
-        ///
-        /// Get the vector containing all the hits of all events.
-        ///
+        /// \brief Get the vector containing all the hits of all events.
+        /// \return events.
         std::vector<Event> &getEvents() {
             return m_events;
         }
 
-        ///
-        /// Get the vector containint all the hist of all events as const reference.
-        ///
+        /// \brief Get the vector containing all the hist of all events as const reference.
+        /// \return events.
         const std::vector<Event> &getEvents() const {
             return m_events;
         }
@@ -70,13 +69,21 @@ namespace pixy_roimux {
 
     private:
 
-        ///
-        /// Private method used internally to find all the 2D hits in a histrogram using ROOT's TSpectrum class.
-        /// discFracLow and discFracHigh are the fractions used for the constant fraction discrimination. The hits are
-        /// stored in a vector of viper2dHits passed by reference. Besides hitOrderLow(High) map the time of the first(last)
-        /// pulse sample to the index of the hit. This allows to simply loop through the ROI hits and the pixel hits using
-        /// these maps to match them.
-        ///
+        /// \brief Private method used internally to find all the 2D hits in a histrogram.
+        /// \param t_histo 2D histogram containing the raw data.
+        /// \param t_hits vector to store the hits.
+        /// \param t_hitOrderLead hit indices ordered by leading pulse edge.
+        /// \param t_hitOrderTrail hit indices ordered by trailing pulse edge.
+        /// \param t_nMissed number of missed pulses for which a above threshold was detected but not all thresholds.
+        /// \param t_bipolar search for bipolar pulses (used for ROI pulses).
+        /// \param t_discSigmaPosLead threshold in noise RMS for the discrimination of the leading edge of the positive pulse.
+        /// \param t_discSigmaPosPeak threshold in noise RMS for the discrimination of the peak of the positive pulse.
+        /// \param t_discAbsPosPeak absolute threshold for the discrimination of the peak of a positive pulse
+        /// \param t_discSigmaPosTrail threshold in noise RMS for the discrimination of the trailing edge of the positive pulse.
+        /// \param t_discSigmaNegLead threshold in noise RMS for the discrimination of the leading edge of the negative pulse.
+        /// \param t_discSigmaNegPeak threshold in noise RMS for the discrimination of the peak of the negative pulse.
+        /// \param t_discAbsNegPeak absolute threshold for the discrimination of the peak of a negative pulse
+        /// \param t_discSigmaNegTrail threshold in noise RMS for the discrimination of the trailing edge of the negative pulse.
         void find2dHits(
                 const TH2S &t_histo,
                 std::vector<Hit2d> &t_hits,
@@ -94,35 +101,30 @@ namespace pixy_roimux {
                 const double t_discSigmaNegTrail
         );
 
+        /// \brief Private method used internally to find the 3D hits using the 2D hits found in both readout histos by
+        /// the 2D hit finder.
         ///
-        /// Private method used internally to find the 3D hits using the 2D hits found in both readout histos by the 2D hit
-        /// finder. The method reads the 2D hits from the viperEvent passed by reference and writes back two vectors
-        /// containing all the matched ROI(pixel) hits for each pixel(ROI) hit. A match occurs if a pixel and a ROI pulse
-        /// overlap. This method only performs the matching. BuildHitCandidates is called afterwards to build the 3D hit
+        /// The method reads the 2D hits from the Event struct passed by reference and writes back two vectors containing
+        /// all the matched ROI(pixel) hits for each pixel(ROI) hit. A match occurs if a pixel and a ROI pulse overlap.
+        /// This method only performs the matching. BuildHitCandidates is called afterwards to build the 3D hit
         /// candidates containing 3D coordinates and reconstructed charge.
-        ///
+        /// \param t_event event struct.
         void find3dHits(Event &t_event);
 
+        /// \brief Find hit candidates.
         ///
-        /// Find hit candidates.
-        /// This method builds viper3dHits using the matches found by Find3dHits. It reads the vectors mapping pixels to
-        /// ROIs from the viperEvent passed by reference, builds viper3dEvents and writes them back to the event struct.
-        ///
+        /// This method builds Hit3ds using the matches found by Find3dHits. It reads the vectors mapping pixels to ROIs
+        /// from the Event struct passed by reference, builds 3D hits and writes them back to the Event struct.
+        /// \param t_event event struct.
         void buildHitCandidates(Event &t_event);
 
-        ///
-        /// Vector containing all events.
-        ///
+        /// \brief Vector containing all events.
         std::vector<Event> m_events;
 
-        ///
-        /// viperData object containing the raw data.
-        ///
+        /// \brief ChargeData object containing the raw data.
         const ChargeData &m_chargeData;
 
-        ///
-        /// viperMap used to convert pixel and ROI channels to actual geometrical coordinates.
-        ///
+        /// \brief Run parameters.
         const RunParams &m_runParams;
     };
 }
