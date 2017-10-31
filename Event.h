@@ -70,8 +70,11 @@ namespace pixy_roimux {
         /// \brief Z coordinate in cm.
         float z;
 
-        /// \brief Charge in C.
-        float charge;
+        /// \brief Integrated charge in fC.
+        float chargeInt;
+
+        /// \brief Peak charge in fC.
+        float chargePeak;
 
         /// \brief ID of the corresponding pixel hit.
         unsigned pixelHitId;

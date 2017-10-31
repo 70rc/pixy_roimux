@@ -166,6 +166,12 @@ namespace pixy_roimux {
             return m_preampGain;
         }
 
+        /// \brief Get the preamplifier transimpedance in mV/nA.
+        /// \return preamplifier transimpedance.
+        double getPreampTransimpedance() const {
+            return m_preampTransimpedance;
+        }
+
         /// \brief Get the number of samples to process.
         /// \return number of samples.
         unsigned getNSamples() const {
@@ -386,6 +392,11 @@ namespace pixy_roimux {
         ///
         /// Used to convert the voltage recorded by the ADC to charge.
         double m_preampGain;
+
+        /// \brief Preamp transimpedance in mV/nA.
+        ///
+        /// Used to convert the voltage recorded by the ADC to current.
+        double m_preampTransimpedance;
 
         /// \brief Array mapping DAQ channels to readout channels.
         std::vector<unsigned> m_daq2readout;

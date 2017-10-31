@@ -260,8 +260,10 @@ namespace pixy_roimux {
                                            * m_runParams.getSampleTime() * m_runParams.getDriftSpeed()
                                            + m_runParams.getTpcOrigin().at(2));
                 // Calculate charge in C.
-                hit.charge = static_cast<float>(pixelHit->pulseIntegral *
-                                                (m_runParams.getAdcLsb() / m_runParams.getPreampGain()));
+                hit.chargeInt = static_cast<float>(pixelHit->pulseIntegral * m_runParams.getSampleTime()
+                                                   * (m_runParams.getAdcLsb() / m_runParams.getPreampTransimpedance()));
+                hit.chargePeak = static_cast<float>(pixelHit->posPulseHeight
+                                                    * (m_runParams.getAdcLsb() / m_runParams.getPreampGain()));
                 hit.pixelHitId = pixelHitId;
                 hit.roiHitId = candidateRoiHitId;
                 hitCandidate->push_back(hit);

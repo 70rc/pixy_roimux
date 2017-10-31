@@ -8,7 +8,7 @@ void makeGeom()
     TGeoMedium *liquidArgon = new TGeoMedium("liquidArgon", 1, liquidArgonMat);
 
     const double tpcRadius = 5.05; //cm
-    const double tpcLength = 58.6; //cm
+    const double tpcLength = 59.; //cm
     const double worldDx = 4 * tpcRadius;
     const double worldDy = 4 * tpcRadius;
     const double worldDz = 2 * tpcLength;

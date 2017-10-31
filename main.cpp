@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
                     reject = 2;
                 }
                 // Append coordinates and charge to file.
-                csvHitsFile << hit.x << ',' << hit.y << ',' << hit.z << ',' << hit.charge << ',' << reject << std::endl;
+                csvHitsFile << hit.x << ',' << hit.y << ',' << hit.z << ',' << hit.chargeInt << ',' << reject << std::endl;
                 ++hitId;
             }
             ++pcaId;
