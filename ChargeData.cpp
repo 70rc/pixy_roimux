@@ -22,8 +22,8 @@ namespace pixy_roimux {
         do {
             // Don't add the histo to the DAQ histo vector in the first pass as we don't have one yet.
             if (eventId >= 0) {
-                m_daqHistos.push_back(std::pair<const TH2S *, const TH2S *>(indHisto, colHisto));
-                m_eventIds.push_back(static_cast<unsigned>(eventId));
+                m_daqHistos.emplace_back(std::pair<const TH2S *, const TH2S *>(indHisto, colHisto));
+                m_eventIds.emplace_back(static_cast<unsigned>(eventId));
             }
             ++eventId;
             // Get the histogram pointers from the ROOT file using the GetObject method which performs basic sanity checks.
@@ -121,8 +121,8 @@ namespace pixy_roimux {
             m_runParams(t_runParams) {
         // Fill the DAQ histos passed to the constructor into the DAQ histo vector, as the convertHistos() method reads from
         // this.
-        m_daqHistos.push_back(std::pair<const TH2S *, const TH2S *>(t_indHisto, t_colHisto));
-        m_eventIds.push_back(t_eventId);
+        m_daqHistos.emplace_back(std::pair<const TH2S *, const TH2S *>(t_indHisto, t_colHisto));
+        m_eventIds.emplace_back(t_eventId);
 
         // Convert the DAQ histos to readout histos.
         convertHistos();

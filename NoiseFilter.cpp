@@ -24,15 +24,17 @@ namespace pixy_roimux{
             //          << std::endl;
             //std::cout << "stddev stats: " << amplitudeSpectrum.GetStdDev() << "\tstddev gauss: "
             //          << gauss.GetParameter(2) << std::endl;
-            return std::pair<double, double>(gauss.GetParameter(1), gauss.GetParameter(2));
+            return {gauss.GetParameter(1), gauss.GetParameter(2)};
         }
         else {
-            return std::pair<double, double>(amplitudeSpectrum.GetMean(), amplitudeSpectrum.GetStdDev());
+            return {amplitudeSpectrum.GetMean(), amplitudeSpectrum.GetStdDev()};
         }
     }
 
 
-    void NoiseFilter::filterHisto(TH2S &t_histo) {
+    void NoiseFilter::filterHisto(
+            TH2S &t_histo,
+            std::vector<std::pair<double, double>> &t_noiseParams) {
         unsigned nSamples = static_cast<unsigned>(t_histo.GetNbinsX());
         unsigned nChannels = static_cast<unsigned>(t_histo.GetNbinsY());
         std::vector<std::pair<double, double>> thresholds(nChannels);
@@ -60,16 +62,27 @@ namespace pixy_roimux{
                                     (t_histo.GetBinContent((sample + 1), (channel + 1)) - commonModeNoise));
             }
         }
+        t_noiseParams.resize(nChannels);
+        unsigned channel = 0;
+        for (auto &&noiseParams : t_noiseParams) {
+            auto channelHisto = std::shared_ptr<TH1D>(t_histo.ProjectionX("channelHisto", (channel + 1), (channel + 1)));
+            noiseParams = computeNoiseParams(channelHisto, true);
+            ++channel;
+        }
     }
 
 
     void NoiseFilter::filterData(ChargeData &t_data) {
+        t_data.getNoiseParams().clear();
+        t_data.getNoiseParams().resize(t_data.getReadoutHistos().size());
         auto eventId = t_data.getEventIds().cbegin();
+        auto noiseParams = t_data.getNoiseParams().begin();
         for (auto &&histos : t_data.getReadoutHistos()) {
             std::cout << "Filtering event number " << *eventId << "...\n";
-            filterHisto(histos.first);
-            filterHisto(histos.second);
+            filterHisto(histos.first, noiseParams->first);
+            filterHisto(histos.second, noiseParams->second);
             ++eventId;
+            ++noiseParams;
         }
     }
 }

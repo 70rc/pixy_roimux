@@ -8,6 +8,7 @@
 namespace pixy_roimux {
     void ChargeHits::find2dHits(
             const TH2S &t_histo,
+            const std::vector<std::pair<double, double>> & t_noiseParams,
             std::vector<Hit2d> &t_hits,
             std::multimap<unsigned, unsigned> &t_hitOrderLead,
             std::multimap<unsigned, unsigned> &t_hitOrderTrail,
@@ -29,21 +30,21 @@ namespace pixy_roimux {
         unsigned hitId = 0;
         // Loop over all channels of the input histo.
         // Pay attention to bin numbers!!! Loops (and everything else) start at 0, histos start at 1!!!
+        auto noiseParams = t_noiseParams.cbegin();
         for (unsigned channel = 0; channel < t_histo.GetNbinsY(); ++channel) {
             // Get the histo of a single channel using the ProjectionX method of TH2.
             auto channelHisto = std::shared_ptr<TH1D>(
                     t_histo.ProjectionX("channelHisto", (channel + 1), (channel + 1)));
-            std::pair<double, double> noiseParams = NoiseFilter::computeNoiseParams(channelHisto, true);
             //if (noiseParams.first < 1.) {
             //    noiseParams.first = 1.;
             //}
-            double noiseBaseline    = noiseParams.first;
-            double thrPosLead       = noiseParams.first + t_discSigmaPosLead * noiseParams.second;
-            double thrPosPeak       = noiseParams.first + std::max(t_discSigmaPosPeak * noiseParams.second, t_discAbsPosPeak);
-            double thrPosTrail      = noiseParams.first + t_discSigmaPosTrail * noiseParams.second;
-            //double thrNegLead       = noiseParams.first - t_discSigmaNegLead * noiseParams.second;
-            double thrNegPeak       = noiseParams.first - std::max(t_discSigmaNegPeak * noiseParams.second, t_discAbsNegPeak);
-            double thrNegTrail      = noiseParams.first - t_discSigmaNegTrail * noiseParams.second;
+            double noiseBaseline    = noiseParams->first;
+            double thrPosLead       = noiseParams->first + t_discSigmaPosLead * noiseParams->second;
+            double thrPosPeak       = noiseParams->first + std::max(t_discSigmaPosPeak * noiseParams->second, t_discAbsPosPeak);
+            double thrPosTrail      = noiseParams->first + t_discSigmaPosTrail * noiseParams->second;
+            //double thrNegLead       = noiseParams->first - t_discSigmaNegLead * noiseParams->second;
+            double thrNegPeak       = noiseParams->first - std::max(t_discSigmaNegPeak * noiseParams->second, t_discAbsNegPeak);
+            double thrNegTrail      = noiseParams->first - t_discSigmaNegTrail * noiseParams->second;
             //std::cout << "noiseBaseline " << noiseBaseline << std::endl;
             //std::cout << "thrPosLead " << thrPosLead << std::endl;
             //std::cout << "thrPosPeak " << thrPosPeak << std::endl;
@@ -174,6 +175,7 @@ namespace pixy_roimux {
                 posPeakSample = static_cast<unsigned>(channelHisto->GetMaximumBin()) - 1;
                 posPeakValue = static_cast<int>(channelHisto->GetBinContent(posPeakSample + 1));
             }
+            ++noiseParams;
         }
     }
 
@@ -284,6 +286,7 @@ namespace pixy_roimux {
         // Raw data vector const iterator. We'll read the raw data from there event by event.
         // Gives us access to a pair of histos containing the pixel (first) and the ROI (second) data.
         auto eventData = m_chargeData.getReadoutHistos().cbegin();
+        auto eventNoise = m_chargeData.getNoiseParams().cbegin();
         // Events vector iterator. We'll store the events we built from the raw data in there.
         auto event = m_events.begin();
         // Loop over all events using the event IDs vector.
@@ -294,6 +297,7 @@ namespace pixy_roimux {
             unsigned nMissedRoiHits = 0;
             // Find pixel hits.
             find2dHits(eventData->first,
+                       eventNoise->first,
                        event->pixelHits,
                        event->pixelHitOrderLead,
                        event->pixelHitOrderTrail,
@@ -311,6 +315,7 @@ namespace pixy_roimux {
             std::cout << "Missed " << nMissedPixelHits << " pixel hits.\n";
             // Find ROI hits.
             find2dHits(eventData->second,
+                       eventNoise->second,
                        event->roiHits,
                        event->roiHitOrderLead,
                        event->roiHitOrderTrail,
@@ -363,6 +368,7 @@ namespace pixy_roimux {
 
             // Increment raw data and events vector iterators.
             ++eventData;
+            ++eventNoise;
             ++event;
         }
     }

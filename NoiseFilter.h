@@ -52,7 +52,11 @@ namespace pixy_roimux {
 
         /// \brief Filter a single TH2S from a dataset.
         /// \param t_histo 2D histogram to be filtered.
-        void filterHisto(TH2S &t_histo);
+        /// \param t_noiseParams vector to store mean and simga per channel.
+        void filterHisto(
+                TH2S &t_histo,
+                std::vector<std::pair<double, double>> &t_noiseParams
+        );
 
         /// \brief Run parameters.
         const RunParams &m_runParams;

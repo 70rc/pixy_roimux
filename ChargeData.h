@@ -125,6 +125,20 @@ namespace pixy_roimux {
             return m_subrunId;
         }
 
+        /// \brief Get the vector containing the noise parameters.
+        /// \return noise parameters
+        std::vector<std::pair<std::vector<std::pair<double, double>>, std::vector<std::pair<double, double>>>>
+        &getNoiseParams() {
+            return m_noiseParams;
+        };
+
+        /// \brief Get the vector containing the noise parameters as const reference.
+        /// \return noise parameters
+        const std::vector<std::pair<std::vector<std::pair<double, double>>, std::vector<std::pair<double, double>>>>
+        &getNoiseParams() const {
+            return m_noiseParams;
+        };
+
 
     private:
 
@@ -145,6 +159,9 @@ namespace pixy_roimux {
 
         /// \brief Vector of readout histograms.
         std::vector<std::pair<TH2S, TH2S>> m_readoutHistos;
+
+        /// \brief Vector of vectors of mean and sigma from noise Gaussian for pixel and ROI channels
+        std::vector<std::pair<std::vector<std::pair<double, double>>, std::vector<std::pair<double, double>>>> m_noiseParams;
     };
 }
 

@@ -71,6 +71,7 @@ namespace pixy_roimux {
 
         /// \brief Private method used internally to find all the 2D hits in a histrogram.
         /// \param t_histo 2D histogram containing the raw data.
+        /// \param t_noiseParams noise parameters used for thresholds.
         /// \param t_hits vector to store the hits.
         /// \param t_hitOrderLead hit indices ordered by leading pulse edge.
         /// \param t_hitOrderTrail hit indices ordered by trailing pulse edge.
@@ -86,6 +87,7 @@ namespace pixy_roimux {
         /// \param t_discSigmaNegTrail threshold in noise RMS for the discrimination of the trailing edge of the negative pulse.
         void find2dHits(
                 const TH2S &t_histo,
+                const std::vector<std::pair<double, double>> &t_noiseParams,
                 std::vector<Hit2d> &t_hits,
                 std::multimap<unsigned, unsigned> &t_hitOrderLead,
                 std::multimap<unsigned, unsigned> &t_hitOrderTrail,
