@@ -36,7 +36,7 @@ void formatRawHisto(TH2D &histo,
                     const pixy_roimux::RunParams &runParams){
     histo.Scale(runParams.getAdcLsb());
     histo.GetXaxis()->SetLimits((0 * runParams.getSampleTime()), (histo.GetNbinsX() * runParams.getSampleTime()));
-    histo.GetXaxis()->SetTitle(std::string("Sample [us]").c_str());
+    histo.GetXaxis()->SetTitle(std::string("Time [us]").c_str());
     histo.GetYaxis()->SetTitle(std::string("Channel #").c_str());
     histo.GetZaxis()->SetTitle(std::string("Amplitude [mV]").c_str());
 }
@@ -51,7 +51,7 @@ void formatHitHisto(const std::shared_ptr<TH1D> &histo,
     histo->GetXaxis()->SetRange(xMin, xMax);
     histo->Scale(runParams.getAdcLsb());
     histo->GetXaxis()->SetLimits(0, (histo->GetNbinsX() * runParams.getSampleTime()));
-    histo->GetXaxis()->SetTitle(std::string("Sample [us]").c_str());
+    histo->GetXaxis()->SetTitle(std::string("Time [us]").c_str());
     histo->GetYaxis()->SetTitle(std::string("Amplitude [mV]").c_str());
 }
 
@@ -116,7 +116,8 @@ int main(int argc, char** argv) {
     TCanvas canvas("canvas", "canvas", 1920, 1080);
     TLegend legend(.7, .7, .9, .9);
     TLine line;
-    line.SetLineWidth(1);
+    const unsigned lineWidth = 1;
+    line.SetLineWidth(lineWidth);
     TBox box;
 
     // Load events directly from ROOT file.
@@ -232,6 +233,7 @@ int main(int argc, char** argv) {
                     "pixelChannelHisto", (pixelHit.channel + 1), (pixelHit.channel + 1)));
             formatHitHisto(pixelHisto, pixelHit, runParams);
             pixelHisto->SetLineColor(kBlue);
+            pixelHisto->SetLineWidth(lineWidth);
             pixelHisto->SetTitle(std::string("Event " + std::to_string(event.eventId)
                                              + " Pixel " + std::to_string(pixelHit.channel)
                                              + " Hit " + std::to_string(pixelHitId)).c_str());
@@ -294,6 +296,7 @@ int main(int argc, char** argv) {
                         "roiChannelHisto", (roiHit.channel + 1), (roiHit.channel + 1)));
                 formatHitHisto(roiHisto, roiHit, runParams);
                 roiHisto->SetLineColor(kBlue);
+                pixelHisto->SetLineWidth(lineWidth);
                 roiHisto->SetTitle(std::string("Event " + std::to_string(event.eventId)
                                                + " ROI " + std::to_string(roiHit.channel)
                                                + " Hit " + std::to_string(roiHitId)
