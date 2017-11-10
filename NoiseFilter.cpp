@@ -50,7 +50,7 @@ namespace pixy_roimux{
             unsigned nCommonModeChannels = 0;
             for (unsigned channel = 0; channel < nChannels; ++channel) {
                 int binContent = static_cast<int>(t_histo.GetBinContent((sample + 1), (channel + 1)));
-                if ((binContent >= thresholds.at(channel).at(0)) && binContent <= thresholds.at(channel).at(1)) {
+                if ((binContent >= thresholds.at(channel).at(0)) && (binContent <= thresholds.at(channel).at(1))) {
                     commonModeNoise += binContent;
                     ++nCommonModeChannels;
                 }

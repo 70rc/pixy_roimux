@@ -348,15 +348,15 @@ namespace pixy_roimux {
                 const rapidjson::Type t_arrayType = rapidjson::kNullType);
 
         /// \brief Strings associated with the rapisjson::Type enumerator.
-        const std::array<std::string, 7> m_jsonTypes = {{
-                                                                "Null",
-                                                                "False",
-                                                                "True",
-                                                                "Object",
-                                                                "Array",
-                                                                "String",
-                                                                "Number"
-                                                        }};
+        const std::array<std::string, 7> m_jsonTypes {{
+                                                              "Null",
+                                                              "False",
+                                                              "True",
+                                                              "Object",
+                                                              "Array",
+                                                              "String",
+                                                              "Number"
+                                                      }};
 
         /// \brief rapidjson Document storing all the data read from the JSON file.
         rapidjson::Document m_jsonDoc;
@@ -504,7 +504,7 @@ namespace pixy_roimux {
     };
 
 
-    const std::array<std::string, 2> ChannelTypeString = {
+    const std::array<std::string, 2> ChannelTypeString {
             "Pixel",
             "ROI"
     };

@@ -25,7 +25,7 @@ add_executable(pixy_roimux ${SOURCE_FILES})
 set(DEBUG_SOURCE_FILES debug.cpp ChargeData.cpp ChargeData.h RunParams.cpp RunParams.h Event.cpp Event.h ChargeHits.cpp ChargeHits.h NoiseFilter.cpp NoiseFilter.h PrincipalComponentsCluster.cpp PrincipalComponentsCluster.h KalmanFit.cpp KalmanFit.h)
 add_executable(pixy_debug ${DEBUG_SOURCE_FILES})
 
-set(NOISE_SOURCE_FILES noise.cpp ChargeData.cpp ChargeData.h RunParams.cpp RunParams.h Event.cpp Event.h ChargeHits.cpp ChargeHits.h NoiseFilter.cpp NoiseFilter.h PrincipalComponentsCluster.cpp PrincipalComponentsCluster.h KalmanFit.cpp KalmanFit.h)
+set(NOISE_SOURCE_FILES noise.cpp ChargeData.cpp ChargeData.h RunParams.cpp RunParams.h NoiseFilter.cpp NoiseFilter.h)
 add_executable(pixy_noise ${NOISE_SOURCE_FILES})
 
 set(DISPLAY_SOURCE_FILES genfitDisplay.cpp)

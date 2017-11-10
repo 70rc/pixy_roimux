@@ -40,10 +40,12 @@ namespace pixy_roimux {
             //}
             double noiseBaseline    = noiseParams->at(0);
             double thrPosLead       = noiseParams->at(0) + t_discSigmaPosLead * noiseParams->at(1);
-            double thrPosPeak       = noiseParams->at(0) + std::max(t_discSigmaPosPeak * noiseParams->at(1), t_discAbsPosPeak);
+            double thrPosPeak       = noiseParams->at(0)
+                                      + std::max((t_discSigmaPosPeak * noiseParams->at(1)), t_discAbsPosPeak);
             double thrPosTrail      = noiseParams->at(0) + t_discSigmaPosTrail * noiseParams->at(1);
-            //double thrNegLead       = noiseParams->first - t_discSigmaNegLead * noiseParams->second;
-            double thrNegPeak       = noiseParams->at(0) - std::max(t_discSigmaNegPeak * noiseParams->at(1), t_discAbsNegPeak);
+            double thrNegLead       = noiseParams->at(0) - t_discSigmaNegLead * noiseParams->at(1);
+            double thrNegPeak       = noiseParams->at(0)
+                                      - std::max((t_discSigmaNegPeak * noiseParams->at(1)), t_discAbsNegPeak);
             double thrNegTrail      = noiseParams->at(0) - t_discSigmaNegTrail * noiseParams->at(1);
             //std::cout << "noiseBaseline " << noiseBaseline << std::endl;
             //std::cout << "thrPosLead " << thrPosLead << std::endl;
