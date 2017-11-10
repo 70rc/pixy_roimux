@@ -61,7 +61,7 @@ namespace pixy_roimux {
                 TVector3 hitPos(hit.x, hit.y, hit.z);
                 new(m_hits[hitId]) genfit::mySpacepointDetectorHit(hitPos, m_posCov);
                 if (hitCandidateId == *pcaId){
-                    hitOrderZ.insert(std::pair<double, unsigned>(hit.z, hitId));
+                    hitOrderZ.insert({hit.z, hitId});
                 }
                 ++hitCandidateId;
                 ++hitId;

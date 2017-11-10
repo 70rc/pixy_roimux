@@ -5,6 +5,7 @@
 #ifndef PIXY_ROIMUX_CHARGEDATA_H
 #define PIXY_ROIMUX_CHARGEDATA_H
 
+#include <array>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -17,13 +18,13 @@
 namespace pixy_roimux {
     /// \brief Class to convert the two DAQ histograms of each event to a pixel and an ROI histogram.
     ///
-    /// The constructor can either read from a single pair of DAQ histograms passed by const pointers, read from a vector of
-    /// pairs of const pointers to DAQ histograms, read an entire ROOT file of DAQ histograms, or read a specific subset of
-    /// DAQ histograms from a ROOT file using a vector of event IDs. The resulting histograms are stored as pairs in a
-    /// vector again. They can be accessed individually or using the vector both by reference and const reference. This
-    /// allows to pass an instance of this class containing all the relevant data by reference and const reference,
-    /// respectively. Furthermore, the histograms are cut after the number of samples specified in the RunParams
-    /// in order to reduce the amount of unused data.
+    /// The constructor can either read from a single array of two DAQ histograms passed by const pointers, read from a
+    /// vector of arrays of two const pointers to DAQ histograms, read an entire ROOT file of DAQ histograms, or read a
+    /// specific subset of DAQ histograms from a ROOT file using a vector of event IDs. The resulting histograms are
+    /// stored as arrays of two (pixel and ROI) in a vector again. They can be accessed individually or using the vector
+    /// both by reference and const reference. This allows to pass an instance of this class containing all the relevant
+    /// data by reference and const reference, respectively. Furthermore, the histograms are cut after the number of
+    /// samples specified in the RunParams in order to reduce the amount of unused data.
     class ChargeData {
     public:
 
@@ -49,18 +50,18 @@ namespace pixy_roimux {
                 const unsigned t_subrunId,
                 const pixy_roimux::RunParams &t_runParams);
 
-        /// \brief Constructor reading a vector of pairs of DAQ histograms.
+        /// \brief Constructor reading a vector of arrays of two DAQ histograms.
         /// \param t_daqHistos DAQ histograms.
         /// \param t_eventIds event IDs corresponding to the DAQ histograms.
         /// \param t_subrunId stored alongside the data for later use.
         /// \param t_runParams run parameters.
         ChargeData(
-                const std::vector<std::pair<const TH2S *, const TH2S *>> &t_daqHistos,
+                const std::vector<std::array<const TH2S *, 2>> &t_daqHistos,
                 const std::vector<unsigned> &t_eventIds,
                 const unsigned t_subrunId,
                 const pixy_roimux::RunParams &t_runParams);
 
-        /// \brief Constructor directly reading a pair of DAQ histograms.
+        /// \brief Constructor directly reading an array of two DAQ histograms.
         /// \param t_indHisto Ind DAQ histogram.
         /// \param t_colHisto Col DAQ histogram.
         /// \param t_eventId event ID corresponding to the DAQ histograms.
@@ -75,13 +76,13 @@ namespace pixy_roimux {
 
         /// \brief Get the vector containing the readout histograms.
         /// \return readout histograms.
-        std::vector<std::pair<TH2S, TH2S>> &getReadoutHistos() {
+        std::vector<std::array<TH2S, 2>> &getReadoutHistos() {
             return m_readoutHistos;
         }
 
         /// \brief Get the vector containing the readout histograms as const reference.
         /// \return readout histograms.
-        const std::vector<std::pair<TH2S, TH2S>> &getReadoutHistos() const {
+        const std::vector<std::array<TH2S, 2>> &getReadoutHistos() const {
             return m_readoutHistos;
         }
 
@@ -89,28 +90,28 @@ namespace pixy_roimux {
         /// \param t_eventIdx index of the pixel histogram.
         /// \return pixel histogram.
         TH2S &getPixelHisto(const unsigned t_eventIdx) {
-            return m_readoutHistos.at(t_eventIdx).first;
+            return m_readoutHistos.at(t_eventIdx).at(kPixel);
         }
 
         /// \brief Get the pixel histogram of a particular event as const reference.
         /// \param t_eventIdx index of the pixel histogram.
         /// \return pixel histogram.
         const TH2S &getPixelHisto(const unsigned t_eventIdx) const {
-            return m_readoutHistos.at(t_eventIdx).first;
+            return m_readoutHistos.at(t_eventIdx).at(kPixel);
         }
 
         /// \brief Get the ROI histogram of a particular event.
         /// \param t_eventIdx index of the ROI histogram.
         /// \return ROI histogram.
         TH2S &getRoiHisto(const unsigned t_eventIdx) {
-            return m_readoutHistos.at(t_eventIdx).second;
+            return m_readoutHistos.at(t_eventIdx).at(kRoi);
         }
 
         /// \brief Get the ROI histogram of a particular event as const reference.
         /// \param t_eventIdx index of the ROI histogram.
         /// \return ROI histogram.
         const TH2S &getRoiHisto(const unsigned t_eventIdx) const {
-            return m_readoutHistos.at(t_eventIdx).second;
+            return m_readoutHistos.at(t_eventIdx).at(kRoi);
         }
 
         /// \brief Get vector of event IDs.
@@ -127,14 +128,14 @@ namespace pixy_roimux {
 
         /// \brief Get the vector containing the noise parameters.
         /// \return noise parameters
-        std::vector<std::pair<std::vector<std::pair<double, double>>, std::vector<std::pair<double, double>>>>
+        std::vector<std::array<std::vector<std::array<double, 2>>, 2>>
         &getNoiseParams() {
             return m_noiseParams;
         };
 
         /// \brief Get the vector containing the noise parameters as const reference.
         /// \return noise parameters
-        const std::vector<std::pair<std::vector<std::pair<double, double>>, std::vector<std::pair<double, double>>>>
+        const std::vector<std::array<std::vector<std::array<double, 2>>, 2>>
         &getNoiseParams() const {
             return m_noiseParams;
         };
@@ -155,13 +156,13 @@ namespace pixy_roimux {
         const pixy_roimux::RunParams &m_runParams;
 
         /// \brief Vector of DAQ histogram const pointers.
-        std::vector<std::pair<const TH2S *, const TH2S *>> m_daqHistos;
+        std::vector<std::array<const TH2S *, 2>> m_daqHistos;
 
         /// \brief Vector of readout histograms.
-        std::vector<std::pair<TH2S, TH2S>> m_readoutHistos;
+        std::vector<std::array<TH2S, 2>> m_readoutHistos;
 
         /// \brief Vector of vectors of mean and sigma from noise Gaussian for pixel and ROI channels
-        std::vector<std::pair<std::vector<std::pair<double, double>>, std::vector<std::pair<double, double>>>> m_noiseParams;
+        std::vector<std::array<std::vector<std::array<double, 2>>, 2>> m_noiseParams;
     };
 }
 

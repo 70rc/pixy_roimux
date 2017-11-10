@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "TFile.h"
@@ -17,23 +18,22 @@ int main(int argc, char** argv) {
     // Start time point for timer.
     auto clkStart = std::chrono::high_resolution_clock::now();
 
-    if (argc < 7) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName rankingFileName geoFileName genfitTreeFileName csvBaseFileName [minRanking] [maxRanking]" << std::endl;
+    if (argc < 6) {
+        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName rankingFileName geoFileName outputPath [minRanking] [maxRanking]" << std::endl;
         exit(1);
     }
-    const std::string runParamsFileName = std::string(argv[1]);
-    const std::string dataFileName = std::string(argv[2]);
-    const std::string rankingFileName = std::string(argv[3]);
-    const std::string geoFileName = std::string(argv[4]);
-    const std::string genfitTreeFileName = std::string(argv[5]);
-    const std::string csvBaseFileName = std::string(argv[6]);
+    const std::string runParamsFileName(argv[1]);
+    const std::string dataFileName(argv[2]);
+    const std::string rankingFileName(argv[3]);
+    const std::string geoFileName(argv[4]);
+    const std::string outputPath = std::string(argv[5]) + '/';
     int minRanking = 4;
-    if (argc > 7) {
-        minRanking = std::stoi(argv[7]);
+    if (argc > 6) {
+        minRanking = std::stoi(argv[6]);
     }
     int maxRanking = 4;
-    if (argc > 8) {
-        maxRanking = std::stoi(argv[8]);
+    if (argc > 7) {
+        maxRanking = std::stoi(argv[7]);
     }
     const unsigned subrunId = 0;
 
@@ -87,7 +87,9 @@ int main(int argc, char** argv) {
     std::cout << "Initialising Kalman Fitter...\n";
     pixy_roimux::KalmanFit kalmanFit(runParams, geoFileName, true);
     std::cout << "Running Kalman Fitter...\n";
-    kalmanFit.fit(chargeHits, genfitTreeFileName);
+    std::ostringstream genfitTreeFileName;
+    genfitTreeFileName << outputPath << "genfit.root";
+    kalmanFit.fit(chargeHits, genfitTreeFileName.str());
 
     // Write chargeHits of events in eventIds vector to CSV files so we can plot them with viper3Dplot.py afterwards.
     unsigned nHitCandidates = 0;
@@ -97,9 +99,11 @@ int main(int argc, char** argv) {
     for (const auto& event : chargeHits.getEvents()) {
         std::cout << "Writing event number " << event.eventId << " to file...\n";
         // Compose CSV filename and open file stream.
-        const std::string csvEventBaseFileName = csvBaseFileName + "_event" + std::to_string(event.eventId);
-        const std::string csvHitsFileName = csvEventBaseFileName + "_hits.csv";
-        std::ofstream csvHitsFile(csvHitsFileName, std::ofstream::out);
+        std::ostringstream csvEventBaseFileName;
+        csvEventBaseFileName << outputPath << "event" << event.eventId;
+        std::ostringstream csvHitsFileName;
+        csvHitsFileName << csvEventBaseFileName.str() << "_hits.csv";
+        std::ofstream csvHitsFile(csvHitsFileName.str(), std::ofstream::out);
         csvHitsFile << "X,Y,Z,Q,A" << std::endl;
         // viperEvents.hitCandidates is a vector of vectors so we need two loops.
         // Outer loop. Actually loops through pixel chargeHits of current event.
@@ -123,8 +127,9 @@ int main(int argc, char** argv) {
         }
         // Close CSV file.
         csvHitsFile.close();
-        const std::string csvPcaFileName = csvEventBaseFileName + "_pca.csv";
-        std::ofstream csvPcaFile(csvPcaFileName, std::ofstream::out);
+        std::ostringstream csvPcaFileName;
+        csvPcaFileName << csvEventBaseFileName.str() << "_pca.csv";
+        std::ofstream csvPcaFile(csvPcaFileName.str(), std::ofstream::out);
         if (!event.principalComponents.avePosition.empty()) {
             csvPcaFile << event.principalComponents.avePosition.at(0) << ','
                        << event.principalComponents.avePosition.at(1) << ','
@@ -158,8 +163,9 @@ int main(int argc, char** argv) {
     float averageHitCandidates = static_cast<float>(nHitCandidates) / static_cast<float>(nEvents);
     float averageAmbiguities = static_cast<float>(nAmbiguities) / static_cast<float>(nEvents);
     float averageUnmatchedPixelHits = static_cast<float>(nUnmatchedPixelHits) / static_cast<float>(nEvents);
-    const std::string statsFileName = csvBaseFileName + "_stats.txt";
-    std::ofstream statsFile(statsFileName, std::ofstream::out);
+    std::ostringstream statsFileName;
+    statsFileName << outputPath << "stats.txt";
+    std::ofstream statsFile(statsFileName.str(), std::ofstream::out);
     statsFile << "Number of events processed: " << nEvents << std::endl;
     statsFile << "Average number of hit candidates per event: " << averageHitCandidates << std::endl;
     statsFile << "Average number of ambiguities per event: " << averageAmbiguities << std::endl;

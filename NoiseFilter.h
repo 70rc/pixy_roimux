@@ -39,8 +39,8 @@ namespace pixy_roimux {
         /// Static so it can be used without prior instantiation.
         /// \param t_channelHisto TH1D of a single channel.
         /// \param t_fit fit Gaussian to the amplitude spectrum. If false, mean and RMS of the TH1D are used instead.
-        /// \return pair containing mean and standard deviation of the amplitude spectrum.
-        static std::pair<double, double> computeNoiseParams(std::shared_ptr<TH1D> t_channelHisto,
+        /// \return array containing mean and standard deviation of the amplitude spectrum.
+        static std::array<double, 2> computeNoiseParams(std::shared_ptr<TH1D> t_channelHisto,
                                                             const bool t_fit);
 
         /// \brief Filter data.
@@ -55,7 +55,7 @@ namespace pixy_roimux {
         /// \param t_noiseParams vector to store mean and simga per channel.
         void filterHisto(
                 TH2S &t_histo,
-                std::vector<std::pair<double, double>> &t_noiseParams
+                std::vector<std::array<double, 2>> &t_noiseParams
         );
 
         /// \brief Run parameters.

@@ -6,7 +6,7 @@
 
 
 namespace pixy_roimux{
-    std::pair<double, double> NoiseFilter::computeNoiseParams(std::shared_ptr<TH1D> t_channelHisto,
+    std::array<double, 2> NoiseFilter::computeNoiseParams(std::shared_ptr<TH1D> t_channelHisto,
                                                               const bool t_fit) {
         int histoMin = static_cast<int>(t_channelHisto->GetBinContent(t_channelHisto->GetMinimumBin())) - 1;
         int histoMax = static_cast<int>(t_channelHisto->GetBinContent(t_channelHisto->GetMaximumBin())) + 1;
@@ -17,8 +17,8 @@ namespace pixy_roimux{
         }
         if (t_fit) {
             TF1 gauss("gauss", "gaus");
-            amplitudeSpectrum.GetXaxis()->SetRangeUser(amplitudeSpectrum.GetMean() - 1 * amplitudeSpectrum.GetStdDev(),
-                                                       amplitudeSpectrum.GetMean() + 1 * amplitudeSpectrum.GetStdDev());
+            amplitudeSpectrum.GetXaxis()->SetRangeUser((amplitudeSpectrum.GetMean() - 1. * amplitudeSpectrum.GetStdDev()),
+                                                       (amplitudeSpectrum.GetMean() + 1. * amplitudeSpectrum.GetStdDev()));
             amplitudeSpectrum.Fit(&gauss, "QN");
             //std::cout << "mean stats: " << amplitudeSpectrum.GetMean() << "\tMean gauss: " << gauss.GetParameter(1)
             //          << std::endl;
@@ -34,23 +34,23 @@ namespace pixy_roimux{
 
     void NoiseFilter::filterHisto(
             TH2S &t_histo,
-            std::vector<std::pair<double, double>> &t_noiseParams) {
+            std::vector<std::array<double, 2>> &t_noiseParams) {
         unsigned nSamples = static_cast<unsigned>(t_histo.GetNbinsX());
         unsigned nChannels = static_cast<unsigned>(t_histo.GetNbinsY());
-        std::vector<std::pair<double, double>> thresholds(nChannels);
+        std::vector<std::array<double, 2>> thresholds(nChannels);
         for (unsigned channel = 0; channel < nChannels; ++channel) {
             auto channelHisto = std::shared_ptr<TH1D>(t_histo.ProjectionX("channelHisto", (channel + 1), (channel + 1)));
             //std::cout << "channel: " << channel << std::endl;
-            std::pair<double, double> noiseParams = computeNoiseParams(channelHisto, true);
-            thresholds.at(channel).first = noiseParams.first - m_runParams.getNoiseFilterSigma() * noiseParams.second;
-            thresholds.at(channel).second = noiseParams.first + m_runParams.getNoiseFilterSigma() * noiseParams.second;
+            std::array<double, 2> noiseParams = computeNoiseParams(channelHisto, true);
+            thresholds.at(channel).at(0) = noiseParams.at(0) - m_runParams.getNoiseFilterSigma() * noiseParams.at(1);
+            thresholds.at(channel).at(1) = noiseParams.at(0) + m_runParams.getNoiseFilterSigma() * noiseParams.at(1);
         }
         for (unsigned sample = 0; sample < nSamples; ++sample) {
             double commonModeNoise = 0.;
             unsigned nCommonModeChannels = 0;
             for (unsigned channel = 0; channel < nChannels; ++channel) {
                 int binContent = static_cast<int>(t_histo.GetBinContent((sample + 1), (channel + 1)));
-                if ((binContent >= thresholds.at(channel).first) && binContent <= thresholds.at(channel).second) {
+                if ((binContent >= thresholds.at(channel).at(0)) && binContent <= thresholds.at(channel).at(1)) {
                     commonModeNoise += binContent;
                     ++nCommonModeChannels;
                 }
@@ -79,8 +79,8 @@ namespace pixy_roimux{
         auto noiseParams = t_data.getNoiseParams().begin();
         for (auto &&histos : t_data.getReadoutHistos()) {
             std::cout << "Filtering event number " << *eventId << "...\n";
-            filterHisto(histos.first, noiseParams->first);
-            filterHisto(histos.second, noiseParams->second);
+            filterHisto(histos.at(kPixel), noiseParams->at(kPixel));
+            filterHisto(histos.at(kRoi), noiseParams->at(kRoi));
             ++eventId;
             ++noiseParams;
         }

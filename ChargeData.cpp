@@ -22,7 +22,7 @@ namespace pixy_roimux {
         do {
             // Don't add the histo to the DAQ histo vector in the first pass as we don't have one yet.
             if (eventId >= 0) {
-                m_daqHistos.emplace_back(std::pair<const TH2S *, const TH2S *>(indHisto, colHisto));
+                m_daqHistos.emplace_back(std::array<const TH2S *, 2>{indHisto, colHisto});
                 m_eventIds.emplace_back(static_cast<unsigned>(eventId));
             }
             ++eventId;
@@ -74,7 +74,7 @@ namespace pixy_roimux {
             rootFile.GetObject(histoName.c_str(), colHisto);
             // If we got something from the file, add its pointer to the DAQ histo vector.
             if (indHisto && colHisto) {
-                *daqHisto = std::pair<const TH2S *, const TH2S *>(indHisto, colHisto);
+                *daqHisto = {indHisto, colHisto};
             }
                 // Else die.
             else {
@@ -97,7 +97,7 @@ namespace pixy_roimux {
 
 
     ChargeData::ChargeData(
-            const std::vector<std::pair<const TH2S *, const TH2S *>> &t_daqHistos,
+            const std::vector<std::array<const TH2S *, 2>> &t_daqHistos,
             const std::vector<unsigned> &t_eventIds,
             const unsigned t_subrunId,
             const pixy_roimux::RunParams &t_runParams) :
@@ -121,7 +121,7 @@ namespace pixy_roimux {
             m_runParams(t_runParams) {
         // Fill the DAQ histos passed to the constructor into the DAQ histo vector, as the convertHistos() method reads from
         // this.
-        m_daqHistos.emplace_back(std::pair<const TH2S *, const TH2S *>(t_indHisto, t_colHisto));
+        m_daqHistos.emplace_back(std::array<const TH2S *, 2>{t_indHisto, t_colHisto});
         m_eventIds.emplace_back(t_eventId);
 
         // Convert the DAQ histos to readout histos.
@@ -146,20 +146,20 @@ namespace pixy_roimux {
             const std::string pixelHistoName = "pixelHisto_" + std::to_string(eventId);
             const std::string roiHistoName = "roiHisto_" + std::to_string(eventId);
             // Create the readout histos.
-            *readoutHisto = std::pair<TH2S, TH2S>(
+            *readoutHisto = {
                     TH2S(pixelHistoName.c_str(), pixelHistoName.c_str(),
                          m_runParams.getNSamples(), 0, m_runParams.getNSamples(), m_runParams.getNPixels(), 0,
                          m_runParams.getNPixels()),
                     TH2S(roiHistoName.c_str(), roiHistoName.c_str(),
                          m_runParams.getNSamples(), 0, m_runParams.getNSamples(), m_runParams.getNRois(), 0,
-                         m_runParams.getNRois()));
+                         m_runParams.getNRois())};
             // Assign the histo pointers.
             // DAQ histo pointers for simplicity.
-            const TH2S &indHisto = *(daqHisto->first);
-            const TH2S &colHisto = *(daqHisto->second);
+            const TH2S &indHisto = *(daqHisto->at(0));
+            const TH2S &colHisto = *(daqHisto->at(1));
             // Readout histo pointers for simplicity.
-            TH2S &pixelHisto = readoutHisto->first;
-            TH2S &roiHisto = readoutHisto->second;
+            TH2S &pixelHisto = readoutHisto->at(kPixel);
+            TH2S &roiHisto = readoutHisto->at(kRoi);
             // Pay attention to the histo bin numbering!!! Loops (as everything else) start at 0, histos start at 1!!!
             // We use the pixel2daq and roi2daq methods of the viperMap to match the desired readout channels to DAQ
             // channels. Samples are copied 1 by 1 up to m_nSamples.

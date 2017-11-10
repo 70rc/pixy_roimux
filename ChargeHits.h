@@ -87,7 +87,7 @@ namespace pixy_roimux {
         /// \param t_discSigmaNegTrail threshold in noise RMS for the discrimination of the trailing edge of the negative pulse.
         void find2dHits(
                 const TH2S &t_histo,
-                const std::vector<std::pair<double, double>> &t_noiseParams,
+                const std::vector<std::array<double, 2>> &t_noiseParams,
                 std::vector<Hit2d> &t_hits,
                 std::multimap<unsigned, unsigned> &t_hitOrderLead,
                 std::multimap<unsigned, unsigned> &t_hitOrderTrail,
