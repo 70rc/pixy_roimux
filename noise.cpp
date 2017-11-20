@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     std::ostringstream rootFileName;
     rootFileName << outputPath << "noise.root";
     TFile rootFile(rootFileName.str().c_str(), "RECREATE");
-    if (rootFile.IsZombie()) {
+    if (!rootFile.IsOpen()) {
         std::cerr << "ERROR: Failed to open ROOT file " << rootFileName << '!' << std::endl;
         exit(1);
     }
@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
     pixy_roimux::NoiseFilter noiseFilter(runParams);
     noiseFilter.filterData(chargeData);
 
-    std::cout << "Analysing noise of unfiltered data...\n";
+    std::cout << "Analysing noise of filtered data...\n";
     noiseParamsFile << std::endl;
     noiseParamsFile << "Filtered data:" << std::endl;
     noiseParamsFile << "--------------" << std::endl;
