@@ -59,8 +59,9 @@ int main(int argc, char** argv) {
             }
         }
         rankingFile.Close();
-        if (eventIds.size() < nEvents) {
-            std::cerr << "ERROR: Failed to find " << nEvents << " events with " << minRanking << " <= ranking >= "
+        const std::string nEventsString = ((nEvents == 0) ? "any" : std::to_string(nEvents));
+        if ((eventIds.size() < nEvents) || eventIds.empty()) {
+            std::cerr << "ERROR: Failed to find " << nEventsString << " events with " << minRanking << " <= ranking >= "
                       << maxRanking << '!' << std::endl;
             exit(1);
         }
