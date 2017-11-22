@@ -49,18 +49,19 @@ int main(int argc, char** argv) {
         }
         int ranking;
         rankingTree->SetBranchAddress("Ranking", &ranking);
-        const unsigned nRankedEvents = (((nEvents > 0) && (nEvents < rankingTree->GetEntries()))
-                                        ? nEvents : static_cast<unsigned>(rankingTree->GetEntries()));
-        for (unsigned event = 0; event < nRankedEvents; ++event) {
+        for (unsigned event = 0; event < rankingTree->GetEntries(); ++event) {
             rankingTree->GetEvent(event);
             if ((ranking >= minRanking) && (ranking <= maxRanking)) {
                 eventIds.push_back(event);
             }
+            if (eventIds.size() >= nEvents) {
+                break;
+            }
         }
         rankingFile.Close();
-        if (eventIds.empty()) {
-            std::cerr << "ERROR: Failed to find any events with " << minRanking << " <= ranking >= " << maxRanking
-                      << " in first " << nEvents << " events!" << std::endl;
+        if (eventIds.size() < nEvents) {
+            std::cerr << "ERROR: Failed to find " << nEvents << " events with " << minRanking << " <= ranking >= "
+                      << maxRanking << '!' << std::endl;
             exit(1);
         }
     }
