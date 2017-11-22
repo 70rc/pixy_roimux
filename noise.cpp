@@ -103,16 +103,17 @@ int main(int argc, char** argv) {
     auto clkStart = std::chrono::high_resolution_clock::now();
 
     if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName outputPath" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName outputPath [nEvents]" << std::endl;
         exit(1);
     }
     const std::string runParamsFileName(argv[1]);
     const std::string dataFileName(argv[2]);
     const std::string outputPath = std::string(argv[3]) + '/';
+    const unsigned nEvents = ((argc > 4) ? static_cast<unsigned>(std::stoul(argv[4])) : 0);
     const unsigned subrunId = 0;
     std::vector<unsigned> eventIds;
-    for (unsigned evt = 0; evt < 100; ++evt) {
-        eventIds.push_back(evt);
+    for (unsigned event = 0; event < nEvents; ++event) {
+        eventIds.emplace_back(event);
     }
 
     // Create the VIPER runParams containing all the needed run parameters.
@@ -120,7 +121,9 @@ int main(int argc, char** argv) {
 
     // Load events directly from ROOT file.
     std::cout << "Extracting chargeData...\n";
-    pixy_roimux::ChargeData chargeData(dataFileName, eventIds, subrunId, runParams);
+    pixy_roimux::ChargeData chargeData = (eventIds.empty()
+                                          ? pixy_roimux::ChargeData(dataFileName, subrunId, runParams)
+                                          : pixy_roimux::ChargeData(dataFileName, eventIds, subrunId, runParams));
 
     std::ostringstream rootFileName;
     rootFileName << outputPath << "noise.root";

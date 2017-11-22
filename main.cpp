@@ -18,54 +18,66 @@ int main(int argc, char** argv) {
     // Start time point for timer.
     auto clkStart = std::chrono::high_resolution_clock::now();
 
-    if (argc < 6) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName rankingFileName geoFileName outputPath [minRanking] [maxRanking]" << std::endl;
+    if (argc < 5) {
+        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName geoFileName outputPath [nEvents] [rankingFileName] [minRanking] [maxRanking]" << std::endl;
         exit(1);
     }
     const std::string runParamsFileName(argv[1]);
     const std::string dataFileName(argv[2]);
-    const std::string rankingFileName(argv[3]);
-    const std::string geoFileName(argv[4]);
-    const std::string outputPath = std::string(argv[5]) + '/';
-    int minRanking = 4;
-    if (argc > 6) {
-        minRanking = std::stoi(argv[6]);
-    }
-    int maxRanking = 4;
-    if (argc > 7) {
-        maxRanking = std::stoi(argv[7]);
-    }
+    const std::string geoFileName(argv[3]);
+    const std::string outputPath = std::string(argv[4]) + '/';
+    const unsigned nEvents = ((argc > 5) ? static_cast<unsigned>(std::stoul(argv[5])) : 0);
+    const std::string rankingFileName = ((argc > 6) ? std::string(argv[6]) : "");
+    const int minRanking = ((argc > 7) ? std::stoi(argv[7]) : 4);
+    const int maxRanking = ((argc > 8) ? std::stoi(argv[8]) : 4);
     const unsigned subrunId = 0;
 
 
-    TFile rankingFile(rankingFileName.c_str(), "READ");
-    if (!rankingFile.IsOpen()) {
-        std::cerr << "ERROR: Failed to open ranking file " << rankingFileName << '!' << std::endl;
-        exit(1);
-    }
-    TTree* rankingTree = nullptr;
-    rankingFile.GetObject("RankingTime", rankingTree);
-    if (!rankingTree) {
-        std::cerr << "ERROR: Failed to find \"RankingTime\" tree in ranking file " << rankingFileName << '!' << std::endl;
-        exit(1);
-    }
-    int ranking;
-    rankingTree->SetBranchAddress("Ranking", &ranking);
     std::vector<unsigned> eventIds;
-    for (unsigned event = 0; event < rankingTree->GetEntries(); ++event) {
-        rankingTree->GetEvent(event);
-        if ((ranking >= minRanking) && (ranking <= maxRanking)) {
-            eventIds.push_back(event);
+    if (!rankingFileName.empty()) {
+        TFile rankingFile(rankingFileName.c_str(), "READ");
+        if (!rankingFile.IsOpen()) {
+            std::cerr << "ERROR: Failed to open ranking file " << rankingFileName << '!' << std::endl;
+            exit(1);
+        }
+        TTree *rankingTree = nullptr;
+        rankingFile.GetObject("RankingTime", rankingTree);
+        if (!rankingTree) {
+            std::cerr << "ERROR: Failed to find \"RankingTime\" tree in ranking file " << rankingFileName << '!'
+                      << std::endl;
+            exit(1);
+        }
+        int ranking;
+        rankingTree->SetBranchAddress("Ranking", &ranking);
+        const unsigned nRankedEvents = (((nEvents > 0) && (nEvents < rankingTree->GetEntries()))
+                                        ? nEvents : static_cast<unsigned>(rankingTree->GetEntries()));
+        for (unsigned event = 0; event < nRankedEvents; ++event) {
+            rankingTree->GetEvent(event);
+            if ((ranking >= minRanking) && (ranking <= maxRanking)) {
+                eventIds.push_back(event);
+            }
+        }
+        rankingFile.Close();
+        if (eventIds.empty()) {
+            std::cerr << "ERROR: Failed to find any events with " << minRanking << " <= ranking >= " << maxRanking
+                      << " in first " << nEvents << " events!" << std::endl;
+            exit(1);
         }
     }
-    rankingFile.Close();
+    else {
+        for (unsigned event = 0; event < nEvents; ++event) {
+            eventIds.emplace_back(event);
+        }
+    }
 
     // Create the VIPER runParams containing all the needed run parameters.
     const pixy_roimux::RunParams runParams(runParamsFileName);
 
     // Load events directly from ROOT file.
     std::cout << "Extracting chargeData...\n";
-    pixy_roimux::ChargeData chargeData(dataFileName, eventIds, subrunId, runParams);
+    pixy_roimux::ChargeData chargeData = (eventIds.empty()
+                                          ? pixy_roimux::ChargeData(dataFileName, subrunId, runParams)
+                                          : pixy_roimux::ChargeData(dataFileName, eventIds, subrunId, runParams));
 
     // Noise filter
     std::cout << "Filtering chargeData...\n";
@@ -159,14 +171,15 @@ int main(int argc, char** argv) {
             }
         }
     }
-    unsigned long nEvents = chargeHits.getEvents().size();
-    float averageHitCandidates = static_cast<float>(nHitCandidates) / static_cast<float>(nEvents);
-    float averageAmbiguities = static_cast<float>(nAmbiguities) / static_cast<float>(nEvents);
-    float averageUnmatchedPixelHits = static_cast<float>(nUnmatchedPixelHits) / static_cast<float>(nEvents);
+    const unsigned long nProcessedEvents = chargeHits.getEvents().size();
+    const double averageHitCandidates = static_cast<double>(nHitCandidates) / static_cast<double>(nProcessedEvents);
+    const double averageAmbiguities = static_cast<double>(nAmbiguities) / static_cast<double>(nProcessedEvents);
+    const double averageUnmatchedPixelHits = static_cast<double>(nUnmatchedPixelHits)
+                                             / static_cast<double>(nProcessedEvents);
     std::ostringstream statsFileName;
     statsFileName << outputPath << "stats.txt";
     std::ofstream statsFile(statsFileName.str(), std::ofstream::out);
-    statsFile << "Number of events processed: " << nEvents << std::endl;
+    statsFile << "Number of events processed: " << nProcessedEvents << std::endl;
     statsFile << "Average number of hit candidates per event: " << averageHitCandidates << std::endl;
     statsFile << "Average number of ambiguities per event: " << averageAmbiguities << std::endl;
     statsFile << "Average number of unmatched pixel chargeHits per event: " << averageUnmatchedPixelHits << std::endl;
@@ -178,7 +191,7 @@ int main(int argc, char** argv) {
     auto clkStop = std::chrono::high_resolution_clock::now();
     // Calculate difference between timer start and stop.
     auto clkDuration = std::chrono::duration_cast<std::chrono::milliseconds>(clkStop - clkStart);
-    std::cout << "Elapsed time for " << chargeHits.getEvents().size() << " processed events is: "
+    std::cout << "Elapsed time for " << nProcessedEvents << " processed events is: "
               << clkDuration.count() << "ms\n";
 
     kalmanFit.openEventDisplay();
