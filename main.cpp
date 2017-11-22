@@ -52,9 +52,9 @@ int main(int argc, char** argv) {
         for (unsigned event = 0; event < rankingTree->GetEntries(); ++event) {
             rankingTree->GetEvent(event);
             if ((ranking >= minRanking) && (ranking <= maxRanking)) {
-                eventIds.push_back(event);
+                eventIds.emplace_back(event);
             }
-            if (eventIds.size() >= nEvents) {
+            if ((eventIds.size() >= nEvents) && (nEvents > 0)) {
                 break;
             }
         }

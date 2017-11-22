@@ -141,7 +141,7 @@ namespace pixy_roimux {
                         eigenVecs(1, pair.second),
                         eigenVecs(2, pair.second)
                 };
-                t_event.principalComponents.eigenVectors.push_back(tempVec);
+                t_event.principalComponents.eigenVectors.emplace_back(tempVec);
             }
 
             t_event.principalComponents.numHitsUsed = numPairsInt;
@@ -185,7 +185,7 @@ namespace pixy_roimux {
                 auto doca = hitDocas.begin();
                 for (const auto &hit : hitCandidates) {
                     *doca = computeDoca(hit, avePosition, axisDirVec);
-                    eventDocas.push_back(*doca);
+                    eventDocas.emplace_back(*doca);
                     ++doca;
                 }
                 *pcaId = static_cast<int>(std::distance(std::begin(hitDocas),
@@ -218,7 +218,7 @@ namespace pixy_roimux {
         for (const auto &hitCandidates : t_event.hitCandidates) {
             if (*pcaId >= 0) {
                 double doca = computeDoca(hitCandidates.at(static_cast<unsigned>(*pcaId)), avePosition, axisDirVec);
-                docas.push_back(doca);
+                docas.emplace_back(doca);
                 if (doca > maxDocaAllowed) {
                     *pcaId = - 2;
                     ++numRejHits;

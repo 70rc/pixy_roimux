@@ -155,7 +155,7 @@ namespace pixy_roimux {
                         ++pulseRaw;
                     }
                     // Push the hit to the hits vector.
-                    t_hits.push_back(hit);
+                    t_hits.emplace_back(hit);
                     // Insert the hit ID into the hit order maps. The key is the sample where the signal rises/falls
                     // above/below the constant fraction.
                     t_hitOrderLead.insert({firstSample, hitId});
@@ -203,8 +203,8 @@ namespace pixy_roimux {
                 const unsigned pixelHitId = pixelHitOrderEntry->second;
                 // Append matches to the match vectors.
                 // Because we're currently inside the ROI pulse, we're sure this is an actual match.
-                t_event.pixel2roi.at(pixelHitId).push_back(roiHitId);
-                t_event.roi2pixel.at(roiHitId).push_back(pixelHitId);
+                t_event.pixel2roi.at(pixelHitId).emplace_back(roiHitId);
+                t_event.roi2pixel.at(roiHitId).emplace_back(pixelHitId);
             }
             // Now loop from the end of the ROI pulse until twice the peak finding range m_discRange after the end of the
             // pulse. This is the maximum length a pixel pulse can have. Thus, outside this range, a match to this ROI hit
@@ -220,8 +220,8 @@ namespace pixy_roimux {
                 // the pixel pulse and the ROI pulse.
                 if (t_event.pixelHits.at(pixelHitId).firstSample <= t_event.roiHits.at(roiHitId).lastSample) {
                     // If they actually overlap, append the match to the match vectors.
-                    t_event.pixel2roi.at(pixelHitId).push_back(roiHitId);
-                    t_event.roi2pixel.at(roiHitId).push_back(pixelHitId);
+                    t_event.pixel2roi.at(pixelHitId).emplace_back(roiHitId);
+                    t_event.roi2pixel.at(roiHitId).emplace_back(pixelHitId);
                 }
             }
         }
@@ -270,7 +270,7 @@ namespace pixy_roimux {
                                                     * (m_runParams.getAdcLsb() / m_runParams.getPreampGain()));
                 hit.pixelHitId = pixelHitId;
                 hit.roiHitId = candidateRoiHitId;
-                hitCandidate->push_back(hit);
+                hitCandidate->emplace_back(hit);
             }
             // Increment the pixel hits and 3D hit candidates vector iterators.
             ++pixelHit;
