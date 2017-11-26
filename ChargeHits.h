@@ -51,8 +51,7 @@ namespace pixy_roimux {
         }
 
         /// \brief Run the hit finder.
-        /// \param t_bipolarRoiHits detect and store the negative part of ROI pulses.
-        void findHits(const bool t_bipolarRoiHits = true);
+        void findHits();
 
         /// \brief Get the vector containing all the hits of all events.
         /// \return events.

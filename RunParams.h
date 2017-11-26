@@ -265,6 +265,18 @@ namespace pixy_roimux {
         unsigned getDiscRange() const {
             return m_discRange;
         }
+        
+        /// \brief Get detectBipolarRoiPulses for the hit finder.
+        /// \return detectBipolarRoiPulses.
+        bool getDetectBipolarRoiPulses() const {
+            return m_detectBipolarRoiPulses;
+        }
+
+        /// \brief Get breakAtUsedSamples for the hit finder.
+        /// \return breakAtUsedSamples.
+        bool getBreakAtUsedSamples() const {
+            return m_breakAtUsedSamples;
+        }
 
         /// \brief Get the scale factor for the principal components analysis.
         /// \return scale factor.
@@ -462,6 +474,12 @@ namespace pixy_roimux {
 
         /// \brief Range in samples within which a discriminated egde/peak needs to be found.
         unsigned m_discRange;
+        
+        /// \brief 2D hit finder detects bipolar ROI pulses.
+        bool m_detectBipolarRoiPulses;
+
+        /// \brief 2D hit finder breaks if a sample has been used before.
+        bool m_breakAtUsedSamples;
 
         /// \brief Scale factor for the principal components analysis.
         double m_pcaScaleFactor;

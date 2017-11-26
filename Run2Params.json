@@ -32,6 +32,8 @@
   "discAbsRoiNegPeak": 75,
   "discSigmaRoiNegTrail": 1.0,
   "discRange": 100,
+  "detectBipolarRoiPulses": true,
+  "breakAtUsedSamples": false,
   "pcaScaleFactor": 3.0,
   "pcaMaxIterations": 3,
   "kalmanPosErr": [0.3, 0.3, 0.3],

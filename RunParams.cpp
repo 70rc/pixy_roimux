@@ -17,42 +17,44 @@ namespace pixy_roimux {
             exit(1);
         }
 
-        m_runId                 = getJsonMember("runId", rapidjson::kNumberType).GetUint();
-        m_nPixels               = getJsonMember("nPixels", rapidjson::kNumberType).GetUint();
-        m_nRois                 = getJsonMember("nRois", rapidjson::kNumberType).GetUint();
-        m_nChans                = m_nPixels + m_nRois;
-        m_pixelPitch            = getJsonMember("pixelPitch", rapidjson::kNumberType).GetDouble();
-        m_driftLength           = getJsonMember("driftLength", rapidjson::kNumberType).GetDouble();
-        m_sampleTime            = getJsonMember("sampleTime", rapidjson::kNumberType).GetDouble();
-        m_driftSpeed            = getJsonMember("driftSpeed", rapidjson::kNumberType).GetDouble();
-        m_anodeSample           = getJsonMember("anodeSample", rapidjson::kNumberType).GetUint();
-        m_adcLsb                = getJsonMember("adcLsb", rapidjson::kNumberType).GetDouble();
-        m_preampGain            = getJsonMember("preampGain", rapidjson::kNumberType).GetDouble();
-        m_preampTransimpedance  = getJsonMember("preampTransimpedance", rapidjson::kNumberType).GetDouble();
-        m_nSamples              = getJsonMember("nSamples", rapidjson::kNumberType).GetUint();
-        m_noiseFilterSigma      = getJsonMember("noiseFilterSigma", rapidjson::kNumberType).GetDouble();
-        m_discSigmaPixelLead    = getJsonMember("discSigmaPixelLead", rapidjson::kNumberType).GetDouble();
-        m_discSigmaPixelPeak    = getJsonMember("discSigmaPixelPeak", rapidjson::kNumberType).GetDouble();
-        m_discAbsPixelPeak      = getJsonMember("discAbsPixelPeak", rapidjson::kNumberType).GetDouble();
-        m_discSigmaPixelTrail   = getJsonMember("discSigmaPixelTrail", rapidjson::kNumberType).GetDouble();
-        m_discSigmaRoiPosLead   = getJsonMember("discSigmaRoiPosLead", rapidjson::kNumberType).GetDouble();
-        m_discSigmaRoiPosPeak   = getJsonMember("discSigmaRoiPosPeak", rapidjson::kNumberType).GetDouble();
-        m_discAbsRoiPosPeak     = getJsonMember("discAbsRoiPosPeak", rapidjson::kNumberType).GetDouble();
-        m_discSigmaRoiPosTrail  = getJsonMember("discSigmaRoiPosTrail", rapidjson::kNumberType).GetDouble();
-        m_discSigmaRoiNegLead   = getJsonMember("discSigmaRoiNegLead", rapidjson::kNumberType).GetDouble();
-        m_discSigmaRoiNegPeak   = getJsonMember("discSigmaRoiNegPeak", rapidjson::kNumberType).GetDouble();
-        m_discAbsRoiNegPeak     = getJsonMember("discAbsRoiNegPeak", rapidjson::kNumberType).GetDouble();
-        m_discSigmaRoiNegTrail  = getJsonMember("discSigmaRoiNegTrail", rapidjson::kNumberType).GetDouble();
-        m_discRange             = getJsonMember("discRange", rapidjson::kNumberType).GetUint();
-        m_pcaScaleFactor        = getJsonMember("pcaScaleFactor", rapidjson::kNumberType).GetDouble();
-        m_pcaMaxIterations      = getJsonMember("pcaMaxIterations", rapidjson::kNumberType).GetUint();
-        m_kalmanRngSeed         = getJsonMember("kalmanRngSeed", rapidjson::kNumberType).GetUint();
-        m_kalmanMaxIterations   = getJsonMember("kalmanMaxIterations", rapidjson::kNumberType).GetUint();
-        m_kalmanUseRef          = getJsonMember("kalmanUseRef", rapidjson::kTrueType).GetBool();
-        m_kalmanDeltaPval       = getJsonMember("kalmanDeltaPval", rapidjson::kNumberType).GetDouble();
-        m_kalmanDeltaWeight     = getJsonMember("kalmanDeltaWeight", rapidjson::kNumberType).GetDouble();
-        m_kalmanPdgCode         = getJsonMember("kalmanPdgCode", rapidjson::kNumberType).GetInt();
-        m_kalmanMomMag          = getJsonMember("kalmanMomMag", rapidjson::kNumberType).GetDouble();
+        m_runId                     = getJsonMember("runId", rapidjson::kNumberType).GetUint();
+        m_nPixels                   = getJsonMember("nPixels", rapidjson::kNumberType).GetUint();
+        m_nRois                     = getJsonMember("nRois", rapidjson::kNumberType).GetUint();
+        m_nChans                    = m_nPixels + m_nRois;
+        m_pixelPitch                = getJsonMember("pixelPitch", rapidjson::kNumberType).GetDouble();
+        m_driftLength               = getJsonMember("driftLength", rapidjson::kNumberType).GetDouble();
+        m_sampleTime                = getJsonMember("sampleTime", rapidjson::kNumberType).GetDouble();
+        m_driftSpeed                = getJsonMember("driftSpeed", rapidjson::kNumberType).GetDouble();
+        m_anodeSample               = getJsonMember("anodeSample", rapidjson::kNumberType).GetUint();
+        m_adcLsb                    = getJsonMember("adcLsb", rapidjson::kNumberType).GetDouble();
+        m_preampGain                = getJsonMember("preampGain", rapidjson::kNumberType).GetDouble();
+        m_preampTransimpedance      = getJsonMember("preampTransimpedance", rapidjson::kNumberType).GetDouble();
+        m_nSamples                  = getJsonMember("nSamples", rapidjson::kNumberType).GetUint();
+        m_noiseFilterSigma          = getJsonMember("noiseFilterSigma", rapidjson::kNumberType).GetDouble();
+        m_discSigmaPixelLead        = getJsonMember("discSigmaPixelLead", rapidjson::kNumberType).GetDouble();
+        m_discSigmaPixelPeak        = getJsonMember("discSigmaPixelPeak", rapidjson::kNumberType).GetDouble();
+        m_discAbsPixelPeak          = getJsonMember("discAbsPixelPeak", rapidjson::kNumberType).GetDouble();
+        m_discSigmaPixelTrail       = getJsonMember("discSigmaPixelTrail", rapidjson::kNumberType).GetDouble();
+        m_discSigmaRoiPosLead       = getJsonMember("discSigmaRoiPosLead", rapidjson::kNumberType).GetDouble();
+        m_discSigmaRoiPosPeak       = getJsonMember("discSigmaRoiPosPeak", rapidjson::kNumberType).GetDouble();
+        m_discAbsRoiPosPeak         = getJsonMember("discAbsRoiPosPeak", rapidjson::kNumberType).GetDouble();
+        m_discSigmaRoiPosTrail      = getJsonMember("discSigmaRoiPosTrail", rapidjson::kNumberType).GetDouble();
+        m_discSigmaRoiNegLead       = getJsonMember("discSigmaRoiNegLead", rapidjson::kNumberType).GetDouble();
+        m_discSigmaRoiNegPeak       = getJsonMember("discSigmaRoiNegPeak", rapidjson::kNumberType).GetDouble();
+        m_discAbsRoiNegPeak         = getJsonMember("discAbsRoiNegPeak", rapidjson::kNumberType).GetDouble();
+        m_discSigmaRoiNegTrail      = getJsonMember("discSigmaRoiNegTrail", rapidjson::kNumberType).GetDouble();
+        m_discRange                 = getJsonMember("discRange", rapidjson::kNumberType).GetUint();
+        m_detectBipolarRoiPulses    = getJsonMember("detectBipolarRoiPulses", rapidjson::kTrueType).GetBool();
+        m_breakAtUsedSamples        = getJsonMember("breakAtUsedSamples", rapidjson::kTrueType).GetBool();
+        m_pcaScaleFactor            = getJsonMember("pcaScaleFactor", rapidjson::kNumberType).GetDouble();
+        m_pcaMaxIterations          = getJsonMember("pcaMaxIterations", rapidjson::kNumberType).GetUint();
+        m_kalmanRngSeed             = getJsonMember("kalmanRngSeed", rapidjson::kNumberType).GetUint();
+        m_kalmanMaxIterations       = getJsonMember("kalmanMaxIterations", rapidjson::kNumberType).GetUint();
+        m_kalmanUseRef              = getJsonMember("kalmanUseRef", rapidjson::kTrueType).GetBool();
+        m_kalmanDeltaPval           = getJsonMember("kalmanDeltaPval", rapidjson::kNumberType).GetDouble();
+        m_kalmanDeltaWeight         = getJsonMember("kalmanDeltaWeight", rapidjson::kNumberType).GetDouble();
+        m_kalmanPdgCode             = getJsonMember("kalmanPdgCode", rapidjson::kNumberType).GetInt();
+        m_kalmanMomMag              = getJsonMember("kalmanMomMag", rapidjson::kNumberType).GetDouble();
 
         m_tpcOrigin = std::vector<double>(3);
         auto jsonArrayItr = getJsonMember("tpcOrigin", rapidjson::kArrayType, 3, rapidjson::kNumberType).Begin();
@@ -120,14 +122,15 @@ namespace pixy_roimux {
             exit(1);
         }
         rapidjson::Value &member = m_jsonDoc[t_memberName.c_str()];
-        if (((t_memberType == rapidjson::kTrueType) || (t_memberType == rapidjson::kFalseType)) &&
-                !((member.GetType() == rapidjson::kTrueType) || (member.GetType() == rapidjson::kFalseType))) {
-            std::cerr << "ERROR: Entry \"" << t_memberName << "\" in run parameter file has wrong type!"
-                      << std::endl;
-            std::cerr << "Expected " << m_jsonTypes.at(rapidjson::kTrueType)
-                      << " or " << m_jsonTypes.at(rapidjson::kFalseType)
-                      << ", got " << m_jsonTypes.at(member.GetType()) << '.' << std::endl;
-            exit(1);
+        if ((t_memberType == rapidjson::kTrueType) || (t_memberType == rapidjson::kFalseType)) {
+            if ((member.GetType() != rapidjson::kTrueType) && (member.GetType() != rapidjson::kFalseType)) {
+                std::cerr << "ERROR: Entry \"" << t_memberName << "\" in run parameter file has wrong type!"
+                          << std::endl;
+                std::cerr << "Expected " << m_jsonTypes.at(rapidjson::kTrueType)
+                          << " or " << m_jsonTypes.at(rapidjson::kFalseType)
+                          << ", got " << m_jsonTypes.at(member.GetType()) << '.' << std::endl;
+                exit(1);
+            }
         }
         else if (member.GetType() != t_memberType) {
             std::cerr << "ERROR: Entry \"" << t_memberName << "\" in run parameter file has wrong type!"

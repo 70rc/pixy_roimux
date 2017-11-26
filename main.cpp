@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     auto clkStart = std::chrono::high_resolution_clock::now();
 
     if (argc < 5) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName geoFileName outputPath [nEvents] [rankingFileName] [minRanking] [maxRanking]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName geoFileName outputPath [nEvents] [firstEvent] [rankingFileName] [minRanking] [maxRanking]" << std::endl;
         exit(1);
     }
     const std::string runParamsFileName(argv[1]);
@@ -27,9 +27,10 @@ int main(int argc, char** argv) {
     const std::string geoFileName(argv[3]);
     const std::string outputPath = std::string(argv[4]) + '/';
     const unsigned nEvents = ((argc > 5) ? static_cast<unsigned>(std::stoul(argv[5])) : 0);
-    const std::string rankingFileName = ((argc > 6) ? std::string(argv[6]) : "");
-    const int minRanking = ((argc > 7) ? std::stoi(argv[7]) : 4);
-    const int maxRanking = ((argc > 8) ? std::stoi(argv[8]) : 4);
+    const unsigned firstEvent = ((argc > 6) ? static_cast<unsigned>(std::stoul(argv[6])) : 0);
+    const std::string rankingFileName = ((argc > 7) ? std::string(argv[7]) : "");
+    const int minRanking = ((argc > 8) ? std::stoi(argv[8]) : 4);
+    const int maxRanking = ((argc > 9) ? std::stoi(argv[9]) : 4);
     const unsigned subrunId = 0;
 
 
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
         }
         int ranking;
         rankingTree->SetBranchAddress("Ranking", &ranking);
-        for (unsigned event = 0; event < rankingTree->GetEntries(); ++event) {
+        for (unsigned event = firstEvent; event < rankingTree->GetEntries(); ++event) {
             rankingTree->GetEvent(event);
             if ((ranking >= minRanking) && (ranking <= maxRanking)) {
                 eventIds.emplace_back(event);
@@ -66,7 +67,7 @@ int main(int argc, char** argv) {
         }
     }
     else {
-        for (unsigned event = 0; event < nEvents; ++event) {
+        for (unsigned event = firstEvent; event < (firstEvent + nEvents); ++event) {
             eventIds.emplace_back(event);
         }
     }
@@ -98,7 +99,7 @@ int main(int argc, char** argv) {
     principalComponentsCluster.analyseEvents(chargeHits);
 
     std::cout << "Initialising Kalman Fitter...\n";
-    pixy_roimux::KalmanFit kalmanFit(runParams, geoFileName, true);
+    pixy_roimux::KalmanFit kalmanFit(runParams, geoFileName, false);
     std::cout << "Running Kalman Fitter...\n";
     std::ostringstream genfitTreeFileName;
     genfitTreeFileName << outputPath << "genfit.root";
@@ -195,7 +196,7 @@ int main(int argc, char** argv) {
     std::cout << "Elapsed time for " << nProcessedEvents << " processed events is: "
               << clkDuration.count() << "ms\n";
 
-    kalmanFit.openEventDisplay();
+    //kalmanFit.openEventDisplay();
 
     return 0;
 }

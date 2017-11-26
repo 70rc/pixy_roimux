@@ -35,6 +35,7 @@ namespace pixy_roimux {
             // Get the histo of a single channel using the ProjectionX method of TH2.
             auto channelHisto = std::shared_ptr<TH1D>(
                     t_histo.ProjectionX("channelHisto", (channel + 1), (channel + 1)));
+            std::vector<int> sampleState(m_runParams.getNSamples(), 0);
             //if (noiseParams.first < 1.) {
             //    noiseParams.first = 1.;
             //}
@@ -57,11 +58,11 @@ namespace pixy_roimux {
             int posPeakValue = static_cast<int>(channelHisto->GetBinContent(posPeakSample + 1));
             while (posPeakValue >= thrPosPeak) {
                 // Start and end of the pulse.
-                int firstSample;
-                int zeroCrossSample;
-                int negPeakSample;
+                int firstSample = posPeakSample;
+                int zeroCrossSample = posPeakSample;
+                int negPeakSample = posPeakSample;
                 int negPeakValue = 0;
-                int lastSample;
+                int lastSample = posPeakSample;
                 bool foundFirstSample = false;
                 bool foundZeroCrossSample = false;
                 bool crossedThrNegPeak = false;
@@ -73,9 +74,13 @@ namespace pixy_roimux {
                     if (!foundFirstSample) {
                         firstSample = posPeakSample - sampleOffset;
                         // Check whether we've crossed the constant fraction threshold.
-                        if ((firstSample >= 0) &&
-                            (channelHisto->GetBinContent(firstSample + 1) < thrPosLead)) {
-                            foundFirstSample = true;
+                        if (firstSample >= 0) {
+                            if (sampleState.at(firstSample) == 1) {
+                                break;
+                            }
+                            if (channelHisto->GetBinContent(firstSample + 1) < thrPosLead) {
+                                foundFirstSample = true;
+                            }
                         }
 
                     }
@@ -83,9 +88,13 @@ namespace pixy_roimux {
                     if (!foundLastSample) {
                         lastSample = posPeakSample + sampleOffset;
                         // Check whether we've crossed the constant fraction threshold.
-                        if ((lastSample < channelHisto->GetNbinsX()) &&
-                            (channelHisto->GetBinContent(lastSample + 1) < thrPosTrail)) {
-                            foundLastSample = true;
+                        if (lastSample < channelHisto->GetNbinsX()) {
+                            if (sampleState.at(lastSample) == 1) {
+                                break;
+                            }
+                            if (channelHisto->GetBinContent(lastSample + 1) < thrPosTrail) {
+                                foundLastSample = true;
+                            }
                         }
                     }
                 }
@@ -108,6 +117,9 @@ namespace pixy_roimux {
                         // Last sample. Only look if we haven't found it yet.
                         if (!foundLastSample) {
                             lastSample = sample;
+                            if (sampleState.at(lastSample) == 1) {
+                                break;
+                            }
                             // Check whether we've crossed the constant fraction threshold.
                             if (crossedThrNegPeak &&
                                 (binContent > thrNegTrail)) {
@@ -173,6 +185,9 @@ namespace pixy_roimux {
                 }
                 for (unsigned sample = firstSample; sample <= lastSample; ++sample) {
                     channelHisto->SetBinContent((sample + 1), noiseBaseline);
+                    if (m_runParams.getBreakAtUsedSamples()) {
+                        sampleState.at(sample) = 1;
+                    }
                 }
                 posPeakSample = static_cast<unsigned>(channelHisto->GetMaximumBin()) - 1;
                 posPeakValue = static_cast<int>(channelHisto->GetBinContent(posPeakSample + 1));
@@ -280,7 +295,7 @@ namespace pixy_roimux {
     }
 
 
-    void ChargeHits::findHits(const bool t_bipolarRoiHits) {
+    void ChargeHits::findHits() {
         // Clear events vector in case there's old data in it.
         m_events.clear();
         // Preallocate fHits for speed.
@@ -322,7 +337,7 @@ namespace pixy_roimux {
                        event->roiHitOrderLead,
                        event->roiHitOrderTrail,
                        nMissedRoiHits,
-                       t_bipolarRoiHits,
+                       m_runParams.getDetectBipolarRoiPulses(),
                        m_runParams.getDiscSigmaRoiPosLead(),
                        m_runParams.getDiscSigmaRoiPosPeak(),
                        m_runParams.getDiscAbsRoiPosPeak(),
