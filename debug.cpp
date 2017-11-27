@@ -389,14 +389,15 @@ int main(int argc, char** argv) {
             }
         }
     }
-    unsigned long nEvents = chargeHits.getEvents().size();
-    float averageHitCandidates = static_cast<float>(nHitCandidates) / static_cast<float>(nEvents);
-    float averageAmbiguities = static_cast<float>(nAmbiguities) / static_cast<float>(nEvents);
-    float averageUnmatchedPixelHits = static_cast<float>(nUnmatchedPixelHits) / static_cast<float>(nEvents);
+    const unsigned long nProcessedEvents = chargeHits.getEvents().size();
+    const double averageHitCandidates = static_cast<double>(nHitCandidates) / static_cast<double>(nProcessedEvents);
+    const double averageAmbiguities = static_cast<double>(nAmbiguities) / static_cast<double>(nProcessedEvents);
+    const double averageUnmatchedPixelHits = static_cast<double>(nUnmatchedPixelHits)
+                                             / static_cast<double>(nProcessedEvents);
     std::ostringstream statsFileName;
     statsFileName << outputPath << "stats.txt";
     std::ofstream statsFile(statsFileName.str(), std::ofstream::out);
-    statsFile << "Number of events processed: " << nEvents << std::endl;
+    statsFile << "Number of events processed: " << nProcessedEvents << std::endl;
     statsFile << "Average number of hit candidates per event: " << averageHitCandidates << std::endl;
     statsFile << "Average number of ambiguities per event: " << averageAmbiguities << std::endl;
     statsFile << "Average number of unmatched pixel chargeHits per event: " << averageUnmatchedPixelHits << std::endl;
@@ -408,7 +409,7 @@ int main(int argc, char** argv) {
     auto clkStop = std::chrono::high_resolution_clock::now();
     // Calculate difference between timer start and stop.
     auto clkDuration = std::chrono::duration_cast<std::chrono::milliseconds>(clkStop - clkStart);
-    std::cout << "Elapsed time for " << chargeHits.getEvents().size() << " processed events is: "
+    std::cout << "Elapsed time for " << nProcessedEvents << " processed events is: "
               << clkDuration.count() << "ms\n";
 
     kalmanFit.openEventDisplay();
