@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <errno.h>
+#include <getopt.h>
 #include "TFile.h"
 #include "TTree.h"
 #include "ChargeData.h"
@@ -14,25 +16,131 @@
 #include "KalmanFit.h"
 
 
-int main(int argc, char** argv) {
-    // Start time point for timer.
-    auto clkStart = std::chrono::high_resolution_clock::now();
+void printUsage(const struct option *options) {
+    std::cerr << "Usage: "
+              << program_invocation_short_name
+              << " --" << options[0].name << "=FILE"
+              << " --" << options[1].name << "=FILE"
+              << " --" << options[2].name << "=FILE"
+              << " --" << options[3].name << "=DIR"
+              << " [--" << options[4].name << "=NUM]"
+              << " [--"  << options[5].name << "=NUM]"
+              << " [--"  << options[6].name << "=FILE]"
+              << " [--"  << options[7].name << "=NUM]"
+              << " [--"  << options[8].name << "=NUM]"
+              << " [--"  << options[9].name << "=NUM]"
+              << " [--"  << options[10].name << "]"
+              << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[0].val) << ", --" << options[0].name
+              << "=FILE\tRead run parameters from FILE." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[1].val) << ", --" << options[1].name
+              << "=FILE\t\tRead data from FILE." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[2].val) << ", --" << options[2].name
+              << "=FILE\t\tRead geometry from FILE." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[3].val) << ", --" << options[3].name
+              << "=DIR\tSave results to DIR." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[4].val) << ", --" << options[4].name
+              << "=NUM\t\tProcess only NUM events." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[5].val) << ", --" << options[5].name
+              << "=NUM\t\tStart with event number NUM." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[6].val) << ", --" << options[6].name
+              << "=FILE\tRead ranking tree from FILE." <<std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[7].val) << ", --" << options[7].name
+              << "=NUM\tOnly process events with ranking >= NUM." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[8].val) << ", --" << options[8].name
+              << "=NUM\tOnly process events with ranking <= NUM." << std::endl;
+    std::cerr << "\t-" << static_cast<char>(options[9].val) << ", --" << options[9].name
+              << "=NUM\tSet subrun ID to NUM." << std::endl;
+    std::cerr << "\t--" << options[10].name
+              << "\t\tEnable GENFIT event display." << std::endl;
+}
 
-    if (argc < 5) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName geoFileName outputPath [nEvents] [firstEvent] [rankingFileName] [minRanking] [maxRanking]" << std::endl;
+
+int main(int argc, char** argv) {
+    std::string runParamsFileName;
+    std::string dataFileName;
+    std::string geoFileName;
+    std::string outputPath;
+    unsigned nEvents = 0;
+    unsigned firstEvent = 0;
+    std::string rankingFileName;
+    int minRanking = 4;
+    int maxRanking = 4;
+    unsigned subrunId = 0;
+    int display = 0;
+
+    static struct option long_options[] =
+            {
+                    {"params",      required_argument,  nullptr,    'p'},
+                    {"data",        required_argument,  nullptr,    'i'},
+                    {"geo",         required_argument,  nullptr,    'g'},
+                    {"output",      required_argument,  nullptr,    'o'},
+                    {"nevt",        required_argument,  nullptr,    'n'},
+                    {"first",       required_argument,  nullptr,    'f'},
+                    {"ranktree",    required_argument,  nullptr,    'r'},
+                    {"minrank",     required_argument,  nullptr,    'm'},
+                    {"maxrank",     required_argument,  nullptr,    'M'},
+                    {"subrun",      required_argument,  nullptr,    's'},
+                    {"display",     no_argument,        &display,   1},
+                    {nullptr, 0, nullptr, 0}
+            };
+    while(true) {
+        int c;
+        // getopt_long stores the option index here.
+        int option_index = 0;
+        c = getopt_long(argc, argv, "p:i:g:o:n:f:r:m:M:s:", long_options, &option_index);
+        // Detect the end of the options.
+        if (c == - 1) {
+            break;
+        }
+        switch(c) {
+            case 0:
+                break;
+            case 'p':
+                runParamsFileName = optarg;
+                break;
+            case 'i':
+                dataFileName = optarg;
+                break;
+            case 'g':
+                geoFileName = optarg;
+                break;
+            case 'o':
+                outputPath = std::string(optarg) + '/';
+                break;
+            case 'n':
+                nEvents = static_cast<unsigned>(std::stoul(optarg));
+                break;
+            case 'f':
+                firstEvent = static_cast<unsigned>(std::stoul(optarg));
+                break;
+            case 'r':
+                rankingFileName = optarg;
+                break;
+            case 'm':
+                minRanking = std::stoi(optarg);
+                break;
+            case 'M':
+                maxRanking = std::stoi(optarg);
+                break;
+            case 's':
+                subrunId = static_cast<unsigned>(std::stoul(optarg));
+                break;
+            case '?':
+                printUsage(long_options);
+                exit(1);
+            default:
+                std::cerr << "Parsing error!" << std::endl;
+                exit(1);
+        }
+    }
+    if (runParamsFileName.empty() || dataFileName.empty() || geoFileName.empty() || outputPath.empty()) {
+        printUsage(long_options);
         exit(1);
     }
-    const std::string runParamsFileName(argv[1]);
-    const std::string dataFileName(argv[2]);
-    const std::string geoFileName(argv[3]);
-    const std::string outputPath = std::string(argv[4]) + '/';
-    const unsigned nEvents = ((argc > 5) ? static_cast<unsigned>(std::stoul(argv[5])) : 0);
-    const unsigned firstEvent = ((argc > 6) ? static_cast<unsigned>(std::stoul(argv[6])) : 0);
-    const std::string rankingFileName = ((argc > 7) ? std::string(argv[7]) : "");
-    const int minRanking = ((argc > 8) ? std::stoi(argv[8]) : 4);
-    const int maxRanking = ((argc > 9) ? std::stoi(argv[9]) : 4);
-    const unsigned subrunId = 0;
 
+    // Start time point for timer.
+    auto clkStart = std::chrono::high_resolution_clock::now();
 
     std::vector<unsigned> eventIds;
     if (!rankingFileName.empty()) {
@@ -99,7 +207,7 @@ int main(int argc, char** argv) {
     principalComponentsCluster.analyseEvents(chargeHits);
 
     std::cout << "Initialising Kalman Fitter...\n";
-    pixy_roimux::KalmanFit kalmanFit(runParams, geoFileName, false);
+    pixy_roimux::KalmanFit kalmanFit(runParams, geoFileName, static_cast<bool>(display));
     std::cout << "Running Kalman Fitter...\n";
     std::ostringstream genfitTreeFileName;
     genfitTreeFileName << outputPath << "genfit.root";
@@ -196,7 +304,9 @@ int main(int argc, char** argv) {
     std::cout << "Elapsed time for " << nProcessedEvents << " processed events is: "
               << clkDuration.count() << "ms\n";
 
-    //kalmanFit.openEventDisplay();
+    if (display) {
+        kalmanFit.openEventDisplay();
+    }
 
     return 0;
 }
