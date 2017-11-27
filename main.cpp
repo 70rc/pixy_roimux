@@ -19,17 +19,17 @@
 void printUsage(const struct option *options) {
     std::cerr << "Usage: "
               << program_invocation_short_name
-              << " --" << options[0].name << "=FILE"
-              << " --" << options[1].name << "=FILE"
-              << " --" << options[2].name << "=FILE"
-              << " --" << options[3].name << "=DIR"
-              << " [--" << options[4].name << "=NUM]"
-              << " [--"  << options[5].name << "=NUM]"
-              << " [--"  << options[6].name << "=FILE]"
-              << " [--"  << options[7].name << "=NUM]"
-              << " [--"  << options[8].name << "=NUM]"
-              << " [--"  << options[9].name << "=NUM]"
-              << " [--"  << options[10].name << "]"
+              << " --"  << options[0].name  << "=FILE"
+              << " --"  << options[1].name  << "=FILE"
+              << " --"  << options[2].name  << "=FILE"
+              << " --"  << options[3].name  << "=DIR"
+              << " [--" << options[4].name  << "=NUM]"
+              << " [--" << options[5].name  << "=NUM]"
+              << " [--" << options[6].name  << "=FILE]"
+              << " [--" << options[7].name  << "=NUM]"
+              << " [--" << options[8].name  << "=NUM]"
+              << " [--" << options[9].name  << "=NUM]"
+              << " [--" << options[10].name << "]"
               << std::endl;
     std::cerr << "\t-" << static_cast<char>(options[0].val) << ", --" << options[0].name
               << "=FILE\tRead run parameters from FILE." << std::endl;
@@ -95,6 +95,7 @@ int main(int argc, char** argv) {
         }
         switch(c) {
             case 0:
+                // Handled by long_options.
                 break;
             case 'p':
                 runParamsFileName = optarg;
