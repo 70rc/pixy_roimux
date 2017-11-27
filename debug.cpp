@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <errno.h>
 #include "TBox.h"
 #include "TCanvas.h"
 #include "TFile.h"
@@ -205,7 +206,7 @@ int main(int argc, char** argv) {
     auto clkStart = std::chrono::high_resolution_clock::now();
 
     if (argc < 6) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName eventID geoFileName outputPath" << std::endl;
+        std::cerr << "Usage: " << program_invocation_short_name << " runParamsFileName dataFileName eventID geoFileName outputPath" << std::endl;
         exit(1);
     }
     const std::string runParamsFileName(argv[1]);

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <errno.h>
 
 #include <TFile.h>
 #include <TGeoManager.h>
@@ -15,7 +16,7 @@
 
 int main(int argc, char** argv) {
     if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " genfitTreeFileName geoFileName" << std::endl;
+        std::cerr << "Usage: " << program_invocation_short_name << " genfitTreeFileName geoFileName" << std::endl;
         return 1;
     }
     const std::string genfitTreeFileName = std::string(argv[1]);

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <errno.h>
 #include "TF1.h"
 #include "TFile.h"
 #include "TH1D.h"
@@ -103,7 +104,7 @@ int main(int argc, char** argv) {
     auto clkStart = std::chrono::high_resolution_clock::now();
 
     if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << " runParamsFileName dataFileName outputPath [nEvents]" << std::endl;
+        std::cerr << "Usage: " << program_invocation_short_name << " runParamsFileName dataFileName outputPath [nEvents]" << std::endl;
         exit(1);
     }
     const std::string runParamsFileName(argv[1]);
