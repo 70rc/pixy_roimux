@@ -36,6 +36,7 @@
   "breakAtUsedSamples": false,
   "pcaScaleFactor": 3.0,
   "pcaMaxIterations": 3,
+  "pcaUseChargeWeights": 1,
   "kalmanPosErr": [0.3, 0.3, 0.3],
   "kalmanMomMag": 0.5,
   "kalmanMomErr": [0.05, 0.05, 0.05],

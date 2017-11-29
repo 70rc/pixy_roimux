@@ -48,6 +48,7 @@ namespace pixy_roimux {
         m_breakAtUsedSamples        = getJsonMember("breakAtUsedSamples", rapidjson::kTrueType).GetBool();
         m_pcaScaleFactor            = getJsonMember("pcaScaleFactor", rapidjson::kNumberType).GetDouble();
         m_pcaMaxIterations          = getJsonMember("pcaMaxIterations", rapidjson::kNumberType).GetUint();
+        m_pcaUseChargeWeights       = getJsonMember("pcaUseChargeWeights", rapidjson::kNumberType).GetUint();
         m_kalmanRngSeed             = getJsonMember("kalmanRngSeed", rapidjson::kNumberType).GetUint();
         m_kalmanMaxIterations       = getJsonMember("kalmanMaxIterations", rapidjson::kNumberType).GetUint();
         m_kalmanUseRef              = getJsonMember("kalmanUseRef", rapidjson::kTrueType).GetBool();

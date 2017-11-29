@@ -89,8 +89,13 @@ namespace pixy_roimux {
             unsigned hitId = 0;
             for (const auto &hit : hitCandidates) {
                 if ((*pcaId == hitId) || (*pcaId == -1)) {
-                    //double weight = hit.charge;
                     double weight = 1.;
+                    if (m_runParams.getPcaUseChargeWeights() == 1) {
+                        weight = hit.chargeInt;
+                    }
+                    else if (m_runParams.getPcaUseChargeWeights() == 2) {
+                        weight = hit.chargePeak;
+                    }
 
                     double x = (hit.x - meanPos.at(0)) * weight;
                     double y = (hit.y - meanPos.at(1)) * weight;

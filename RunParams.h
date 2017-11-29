@@ -289,6 +289,12 @@ namespace pixy_roimux {
         unsigned getPcaMaxIterations() const {
             return m_pcaMaxIterations;
         }
+        
+        /// \brief Get useChargeWeights for the principal components analysis.
+        /// \return useChargeWeights.
+        unsigned getPcaUseChargeWeights() const {
+            return m_pcaUseChargeWeights;
+        }
 
         /// \brief Get the position error for the Kalman fitter.
         /// \return position error.
@@ -486,6 +492,12 @@ namespace pixy_roimux {
 
         /// \brief Maximum number of iterations for the principal components analysis.
         unsigned m_pcaMaxIterations;
+        
+        /// \brief Use reconstructed charge as weight for the principal components analysis.
+        ///
+        /// 0: Don't use charge. 1: Use charge reconstructed from pulse integral. 2: Use charge reconstructed from pulse
+        /// peak.
+        unsigned m_pcaUseChargeWeights;
 
         /// \brief Position error for the Kalman fitter.
         std::vector<double> m_kalmanPosErr;
