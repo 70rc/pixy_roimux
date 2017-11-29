@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <errno.h>
+#include <cerrno>
 
 #include <TFile.h>
 #include <TGeoManager.h>

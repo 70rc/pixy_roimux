@@ -68,6 +68,10 @@ namespace pixy_roimux {
             }
             ++pcaId;
         }
+        if (hitOrderZ.empty()) {
+            std::cerr << "WARNING: Event contains no usable hits, skipping..." << std::endl;
+            return;
+        }
         for (const auto& orderedHit : hitOrderZ) {
             trackCand.addHit(m_detId, orderedHit.second);
         }
@@ -115,6 +119,14 @@ namespace pixy_roimux {
         m_tree->Branch("eventId", &m_eventId, "eventId/i");
         for (const auto& event : t_chargeHits.getEvents()) {
             std::cout << "Fitting event number " << event.eventId << "...\n";
+            if (event.pcaIds.empty()) {
+                std::cerr << "WARNING: Event contains no PCA information, skipping..." << std::endl;
+                continue;
+            }
+            else if (std::find(event.pcaIds.cbegin(), event.pcaIds.cend(), -1) != event.pcaIds.cend()) {
+                std::cerr << "WARNING: Event contains PCA errors, skipping..." << std::endl;
+                continue;
+            }
             fitEvent(event);
         }
         m_tree->Write();

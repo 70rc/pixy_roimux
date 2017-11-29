@@ -6,6 +6,7 @@
 #define PIXY_ROIMUX_KALMANFIT_H
 
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <memory>

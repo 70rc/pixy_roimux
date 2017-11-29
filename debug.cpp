@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <errno.h>
+#include <cerrno>
 #include "TBox.h"
 #include "TCanvas.h"
 #include "TFile.h"

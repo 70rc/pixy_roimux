@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <errno.h>
+#include <cerrno>
 #include <getopt.h>
 #include "TFile.h"
 #include "TTree.h"
@@ -30,6 +30,8 @@ void printUsage(const struct option *options) {
               << " [--" << options[8].name  << "=NUM]"
               << " [--" << options[9].name  << "=NUM]"
               << " [--" << options[10].name << "]"
+              << " [--" << options[11].name << "]"
+              << " [--" << options[12].name << "]"
               << std::endl;
     std::cerr << "\t-" << static_cast<char>(options[0].val) << ", --" << options[0].name
               << "=FILE\tRead run parameters from FILE." << std::endl;
@@ -53,6 +55,10 @@ void printUsage(const struct option *options) {
               << "=NUM\tSet subrun ID to NUM." << std::endl;
     std::cerr << "\t--" << options[10].name
               << "\t\tEnable GENFIT event display." << std::endl;
+    std::cerr << "\t--" << options[11].name
+              << "\t\tDisable principal components analysis." << std::endl;
+    std::cerr << "\t--" << options[12].name
+              << "\t\tDisable Kalman Filter." << std::endl;
 }
 
 
@@ -68,6 +74,8 @@ int main(int argc, char** argv) {
     int maxRanking = 4;
     unsigned subrunId = 0;
     int display = 0;
+    int pca = 1;
+    int kalman = 1;
 
     static struct option long_options[] =
             {
@@ -82,6 +90,8 @@ int main(int argc, char** argv) {
                     {"maxrank",     required_argument,  nullptr,    'M'},
                     {"subrun",      required_argument,  nullptr,    's'},
                     {"display",     no_argument,        &display,   1},
+                    {"nopca",       no_argument,        &pca,       0},
+                    {"nokalman",    no_argument,        &kalman,    0},
                     {nullptr, 0, nullptr, 0}
             };
     while(true) {
@@ -204,15 +214,19 @@ int main(int argc, char** argv) {
 
     std::cout << "Initialising principle components analysis...\n";
     pixy_roimux::PrincipalComponentsCluster principalComponentsCluster(runParams);
-    std::cout << "Running principle components analysis...\n";
-    principalComponentsCluster.analyseEvents(chargeHits);
+    if (pca) {
+        std::cout << "Running principle components analysis...\n";
+        principalComponentsCluster.analyseEvents(chargeHits);
+    }
 
     std::cout << "Initialising Kalman Fitter...\n";
     pixy_roimux::KalmanFit kalmanFit(runParams, geoFileName, static_cast<bool>(display));
-    std::cout << "Running Kalman Fitter...\n";
-    std::ostringstream genfitTreeFileName;
-    genfitTreeFileName << outputPath << "genfit.root";
-    kalmanFit.fit(chargeHits, genfitTreeFileName.str());
+    if (kalman) {
+        std::cout << "Running Kalman Fitter...\n";
+        std::ostringstream genfitTreeFileName;
+        genfitTreeFileName << outputPath << "genfit.root";
+        kalmanFit.fit(chargeHits, genfitTreeFileName.str());
+    }
 
     // Write chargeHits of events in eventIds vector to CSV files so we can plot them with viper3Dplot.py afterwards.
     unsigned nHitCandidates = 0;
@@ -234,13 +248,18 @@ int main(int argc, char** argv) {
         for (const auto& hitCandidates : event.hitCandidates) {
             // Inner loop. Loops through all hit candidates of current pixel hit.
             int hitId = 0;
-            for (const auto& hit : hitCandidates) {
-                int reject = 0;
-                if (*pcaId == - 2) {
-                    reject = 1;
-                }
-                else if (hitId != *pcaId) {
-                    reject = 2;
+            for (const auto &hit : hitCandidates) {
+                int reject = -1;
+                if (pcaId < event.pcaIds.cend()) {
+                    if (*pcaId == hitId) {
+                        reject = 0;
+                    }
+                    else if (*pcaId == -2) {
+                        reject = 1;
+                    }
+                    else if (*pcaId >= 0) {
+                        reject = 2;
+                    }
                 }
                 // Append coordinates and charge to file.
                 csvHitsFile << hit.x << ',' << hit.y << ',' << hit.z << ',' << hit.chargeInt << ',' << reject << std::endl;

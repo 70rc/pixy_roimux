@@ -65,6 +65,10 @@ namespace pixy_roimux {
             }
             ++pcaId;
         }
+        if (!numPairsInt) {
+            std::cerr << "WARNING: No hits found for event " << t_event.eventId << '.' << std::endl;
+            return 1;
+        }
 
         double numPairs = static_cast<double>(numPairsInt);
 
@@ -188,8 +192,8 @@ namespace pixy_roimux {
                     eventDocas.emplace_back(*doca);
                     ++doca;
                 }
-                *pcaId = static_cast<int>(std::distance(std::begin(hitDocas),
-                                                        std::min_element(std::begin(hitDocas), std::end(hitDocas))));
+                *pcaId = static_cast<int>(std::distance(hitDocas.cbegin(),
+                                                        std::min_element(hitDocas.cbegin(), hitDocas.cend())));
             }
             else {
                 *pcaId = -3;

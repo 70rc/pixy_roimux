@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <errno.h>
+#include <cerrno>
 #include "TF1.h"
 #include "TFile.h"
 #include "TH1D.h"
