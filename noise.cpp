@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
     rootFileName << outputPath << "noise.root";
     TFile rootFile(rootFileName.str().c_str(), "RECREATE");
     if (!rootFile.IsOpen()) {
-        std::cerr << "ERROR: Failed to open ROOT file " << rootFileName << '!' << std::endl;
+        std::cerr << "ERROR: Failed to open ROOT file " << rootFileName.str() << '!' << std::endl;
         exit(1);
     }
     std::ostringstream noiseParamFileName;
