@@ -253,16 +253,16 @@ int main(int argc, char** argv) {
             // Inner loop. Loops through all hit candidates of current pixel hit.
             int hitId = 0;
             for (const auto &hit : hitCandidates) {
-                int reject = -1;
+                int reject = -2;
                 if (pcaId < event.pcaIds.cend()) {
                     if (*pcaId == hitId) {
-                        reject = 0;
+                        reject = ((hitCandidates.size() > 1) ? 1 : 0);
                     }
                     else if (*pcaId == -2) {
-                        reject = 1;
+                        reject = -1;
                     }
                     else if (*pcaId >= 0) {
-                        reject = 2;
+                        reject = static_cast<int>(hitCandidates.size());
                     }
                 }
                 // Append coordinates and charge to file.

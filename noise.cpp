@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TStyle.h"
 #include "TTree.h"
 #include "ChargeData.h"
 #include "ChargeHits.h"
@@ -116,6 +117,9 @@ int main(int argc, char** argv) {
     for (unsigned event = 0; event < nEvents; ++event) {
         eventIds.emplace_back(event);
     }
+
+    gStyle->SetPalette(kViridis);
+    gStyle->SetNumberContours(255);
 
     // Create the VIPER runParams containing all the needed run parameters.
     const pixy_roimux::RunParams runParams(runParamsFileName);

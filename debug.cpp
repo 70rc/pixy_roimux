@@ -44,6 +44,8 @@ void plotRawHistos(const pixy_roimux::ChargeData &data,
                 }
             }
             histoCopy.Scale(runParams.getAdcLsb());
+            histoCopy.SetMinimum(-150 * runParams.getAdcLsb());
+            histoCopy.SetMaximum(150 * runParams.getAdcLsb());
             histoCopy.GetXaxis()->SetLimits(0., (histoCopy.GetNbinsX() * runParams.getSampleTime()));
             histoCopy.GetXaxis()->SetTitle("Time [us]");
             histoCopy.GetYaxis()->SetTitle("Channel #");
@@ -53,7 +55,7 @@ void plotRawHistos(const pixy_roimux::ChargeData &data,
                         << pixy_roimux::ChannelTypeString.at(channelType) << " Raw Data";
             histoCopy.SetTitle(histoString.str().c_str());
             canvas.cd();
-            histoCopy.Draw("colz");
+            histoCopy.Draw("colz0");
             histoString.str("");
             histoString << outputPath << "event" << *eventId << "_raw" << nameSuffix
                         << pixy_roimux::ChannelTypeString.at(channelType) << ".pdf";
@@ -169,6 +171,11 @@ void plotHitHisto(const std::array<TH2S, 2> &rawHistos,
         line.SetLineColor(kGreen);
         line.SetLineStyle(1);
         line.DrawLine(x1, y1, x2, y2);
+        y1 = mean * runParams.getAdcLsb();
+        y2 = y1;
+        line.SetLineColor(kOrange);
+        line.SetLineStyle(1);
+        line.DrawLine(x1, y1, x2, y2);
         y1 = (mean - std::max((runParams.getDiscSigmaRoiNegPeak() * sigma), runParams.getDiscAbsRoiNegPeak()))
             * runParams.getAdcLsb();
         y2 = y1;
@@ -217,6 +224,8 @@ int main(int argc, char** argv) {
     const unsigned subrunId = 0;
 
     gStyle->SetOptStat(0);
+    gStyle->SetPalette(kViridis);
+    gStyle->SetNumberContours(255);
 
     // Create the VIPER runParams containing all the needed run parameters.
     const pixy_roimux::RunParams runParams(runParamsFileName);
@@ -347,16 +356,16 @@ int main(int argc, char** argv) {
             // Inner loop. Loops through all hit candidates of current pixel hit.
             int hitId = 0;
             for (const auto &hit : hitCandidates) {
-                int reject = -1;
+                int reject = -2;
                 if (pcaId < event.pcaIds.cend()) {
                     if (*pcaId == hitId) {
-                        reject = 0;
+                        reject = ((hitCandidates.size() > 1) ? 1 : 0);
                     }
                     else if (*pcaId == -2) {
-                        reject = 1;
+                        reject = -1;
                     }
                     else if (*pcaId >= 0) {
-                        reject = 2;
+                        reject = static_cast<int>(hitCandidates.size());
                     }
                 }
                 // Append coordinates and charge to file.

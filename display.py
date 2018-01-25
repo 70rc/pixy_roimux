@@ -14,6 +14,7 @@ parser.add_argument("hitsFile", help="CSV file containing the 3D hits.")
 parser.add_argument("-p", "--pcaFile", help="CSV file containing the PCA data. If not specified, no PCA line is drawn.")
 parser.add_argument("-o", "--plotFile", help="Save plot to file. If not specified, the interactive display is started.")
 parser.add_argument("-c", "--colourColumn", help="Specify the colour column. Q for charge and A for ambiguities (default: %(default)s).", default="Q")
+parser.add_argument("-l", "--logo", action="store_true", help="Show logo.")
 args = parser.parse_args()
 
 if args.plotFile:
@@ -34,9 +35,12 @@ tpcLength = runParams["driftLength"]
 tpcRadius = runParams["tpcRadius"]
 pixelPitch = runParams["pixelPitch"]
 
-chargeData = np.transpose(np.loadtxt(args.hitsFile, delimiter=',', skiprows=1))[3]
+data = np.loadtxt(args.hitsFile, delimiter=',', skiprows=1)
+chargeData = np.transpose(data)[3]
 chargeScale = 1. / (np.mean(chargeData) + np.std(chargeData))
 scaleFactor = 1. * pixelPitch * chargeScale
+ambData = np.transpose(data)[4]
+maxAmb = np.max(ambData)
 
 #### disable automatic camera reset on 'Show'
 pv._DisableFirstRenderCameraReset()
@@ -73,12 +77,17 @@ rgb = [0. for i in range(3)]
 if args.colourColumn == 'Q':
     cLUT.ApplyPreset("Plasma (matplotlib)")
 else:
-    nc.GetColorRGB("Green", rgb)
-    rgbPoints = [0.] + rgb  # Accepted
-    nc.GetColorRGB("Magenta", rgb)
-    rgbPoints += [1.] + rgb  # Rejected Hit
     nc.GetColorRGB("Blue", rgb)
+    rgbPoints = [-1.] + rgb  # Rejected Hit
+    nc.GetColorRGB("Lime", rgb)
+    rgbPoints += [0.] + rgb  # Unambiguous Hit
+    nc.GetColorRGB("Green", rgb)
+    rgbPoints += [1.] + rgb  # Accepted Ambiguity
+    nc.GetColorRGB("Maroon", rgb)
     rgbPoints += [2.] + rgb  # Rejected Ambiguity
+    if maxAmb > 2:
+        nc.GetColorRGB("Black", rgb)
+        rgbPoints += [float(maxAmb)] + rgb  # Rejected Ambiguity
     cLUT.RGBPoints = rgbPoints
 
 # show data in view
@@ -105,7 +114,7 @@ cylinder1.Radius = tpcRadius
 cylinder1Display = pv.Show(cylinder1, renderView1)
 cylinder1Display.Orientation = [90.0, 0.0, 0.0]
 cylinder1Display.Opacity = 0.05
-nc.GetColorRGB("Yellow", rgb)
+nc.GetColorRGB("White", rgb)
 cylinder1Display.DiffuseColor = rgb
 
 if args.pcaFile:
@@ -124,14 +133,23 @@ if args.pcaFile:
     if args.colourColumn == 'Q':
         nc.GetColorRGB("Lime", rgb)
     else:
-        nc.GetColorRGB("Red", rgb)
+        nc.GetColorRGB("Magenta", rgb)
     cylinder2Display.DiffuseColor = rgb
     cylinder2Display.Orientation = [np.rad2deg(np.arcsin(direction[2])),
                                     0.,
                                     (np.rad2deg(np.arctan2(direction[1], direction[0])) - 90.)]
     cylinder2Display.Position = cylPos
 
-renderView1.Background = [0.67, 0.67, 0.67]
+if args.logo:
+    a3DText1 = pv.a3DText()
+    a3DText1.Text = "(C) 2018 AEC, LHEP, University of Bern, Switzerland"
+    a3DText1Display = pv.Show(a3DText1, renderView1)
+    a3DText1Display.DiffuseColor = [1., 0., 0.]
+    a3DText1Display.Orientation = [0., 90., 180.]
+    a3DText1Display.Position = [0., -10., 15.]
+
+nc.GetColorRGB("Grey", rgb)
+renderView1.Background = rgb
 renderView1.Update()
 
 viewAngle = 10.
