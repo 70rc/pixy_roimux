@@ -75,7 +75,7 @@ if args.colourColumn == 'Q':
 else:
     nc.GetColorRGB("Green", rgb)
     rgbPoints = [0.] + rgb  # Accepted
-    nc.GetColorRGB("Red", rgb)
+    nc.GetColorRGB("Magenta", rgb)
     rgbPoints += [1.] + rgb  # Rejected Hit
     nc.GetColorRGB("Blue", rgb)
     rgbPoints += [2.] + rgb  # Rejected Ambiguity
@@ -85,6 +85,8 @@ else:
 glyph1Display = pv.Show(glyph1, renderView1)
 glyph1Display.ColorArrayName = ['POINTS', args.colourColumn]
 glyph1Display.LookupTable = cLUT
+if args.pcaFile:
+    glyph1Display.Opacity = .1
 
 # show color bar/color legend
 glyph1Display.SetScalarBarVisibility(renderView1, True)
@@ -117,9 +119,13 @@ if args.pcaFile:
     cylinder2 = pv.Cylinder()
     cylinder2.Resolution = 60
     cylinder2.Height = tpcLength
-    cylinder2.Radius = pixelPitch / 2.
+    cylinder2.Radius = pixelPitch / 5.
     cylinder2Display = pv.Show(cylinder2, renderView1)
-    cylinder2Display.DiffuseColor = [0., 1., 0.]
+    if args.colourColumn == 'Q':
+        nc.GetColorRGB("Lime", rgb)
+    else:
+        nc.GetColorRGB("Red", rgb)
+    cylinder2Display.DiffuseColor = rgb
     cylinder2Display.Orientation = [np.rad2deg(np.arcsin(direction[2])),
                                     0.,
                                     (np.rad2deg(np.arctan2(direction[1], direction[0])) - 90.)]
