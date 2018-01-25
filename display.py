@@ -144,7 +144,8 @@ if args.logo:
     a3DText1 = pv.a3DText()
     a3DText1.Text = "(C) 2018 AEC, LHEP, University of Bern, Switzerland"
     a3DText1Display = pv.Show(a3DText1, renderView1)
-    a3DText1Display.DiffuseColor = [1., 0., 0.]
+    nc.GetColorRGB("Red", rgb)
+    a3DText1Display.DiffuseColor = rgb
     a3DText1Display.Orientation = [0., 90., 180.]
     a3DText1Display.Position = [0., -10., 15.]
 
