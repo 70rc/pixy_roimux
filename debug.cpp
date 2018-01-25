@@ -335,29 +335,52 @@ int main(int argc, char** argv) {
         std::ostringstream csvHitsFileName;
         csvHitsFileName << csvEventBaseFileName.str() << "_hits.csv";
         std::ofstream csvHitsFile(csvHitsFileName.str(), std::ofstream::out);
+        std::ostringstream csvPulsesFileName;
+        csvPulsesFileName << csvEventBaseFileName.str() << "_pulses.csv";
+        std::ofstream csvPulsesFile(csvPulsesFileName.str(), std::ofstream::out);
         csvHitsFile << "X,Y,Z,Q,A" << std::endl;
+        csvPulsesFile << "X,Y,Z,Q,A" << std::endl;
         // viperEvents.hitCandidates is a vector of vectors so we need two loops.
         // Outer loop. Actually loops through pixel chargeHits of current event.
         auto pcaId = event.pcaIds.cbegin();
         for (const auto& hitCandidates : event.hitCandidates) {
             // Inner loop. Loops through all hit candidates of current pixel hit.
             int hitId = 0;
-            for (const auto& hit : hitCandidates) {
-                int reject = 0;
-                if (*pcaId == - 2) {
-                    reject = 1;
-                }
-                else if (hitId != *pcaId) {
-                    reject = 2;
+            for (const auto &hit : hitCandidates) {
+                int reject = -1;
+                if (pcaId < event.pcaIds.cend()) {
+                    if (*pcaId == hitId) {
+                        reject = 0;
+                    }
+                    else if (*pcaId == -2) {
+                        reject = 1;
+                    }
+                    else if (*pcaId >= 0) {
+                        reject = 2;
+                    }
                 }
                 // Append coordinates and charge to file.
-                csvHitsFile << hit.x << ',' << hit.y << ',' << hit.z << ',' << hit.chargeInt << ',' << reject << std::endl;
+                csvHitsFile << hit.x << ',' << hit.y << ',' << hit.z << ',' << hit.chargeInt << ',' << reject
+                            << std::endl;
+                unsigned pulseSample = 0;
+                const pixy_roimux::Hit2d &pixelData = event.pixelHits.at(hit.pixelHitId);
+                for (const auto &pulseData : pixelData.pulseRaw) {
+                    float z = static_cast<float>((pulseSample + pixelData.firstSample - runParams.getAnodeSample())
+                                                 * runParams.getSampleTime() * runParams.getDriftSpeed()
+                                                 + runParams.getTpcOrigin().at(2));
+                    float amplitude = static_cast<float>(pulseData * runParams.getSampleTime()
+                                                         * runParams.getAdcLsb() / runParams.getPreampTransimpedance());
+                    csvPulsesFile << hit.x << ',' << hit.y << ',' << z << ',' << amplitude << ',' << reject
+                                  << std::endl;
+                    ++pulseSample;
+                }
                 ++hitId;
             }
             ++pcaId;
         }
         // Close CSV file.
         csvHitsFile.close();
+        csvPulsesFile.close();
         std::ostringstream csvPcaFileName;
         csvPcaFileName << csvEventBaseFileName.str() << "_pca.csv";
         std::ofstream csvPcaFile(csvPcaFileName.str(), std::ofstream::out);
