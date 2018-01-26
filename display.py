@@ -15,6 +15,7 @@ parser.add_argument("-p", "--pcaFile", help="CSV file containing the PCA data. I
 parser.add_argument("-o", "--plotFile", help="Save plot to file. If not specified, the interactive display is started.")
 parser.add_argument("-c", "--colourColumn", help="Specify the colour column. Q for charge and A for ambiguities (default: %(default)s).", default="Q")
 parser.add_argument("-l", "--logo", action="store_true", help="Show logo.")
+parser.add_argument("-d", "--detail", action="store_true", help="Enable detailed colouring.")
 args = parser.parse_args()
 
 if args.plotFile:
@@ -77,15 +78,18 @@ rgb = [0. for i in range(3)]
 if args.colourColumn == 'Q':
     cLUT.ApplyPreset("Plasma (matplotlib)")
 else:
-    nc.GetColorRGB("Blue", rgb)
+    nc.GetColorRGB("Magenta", rgb)
     rgbPoints = [-1.] + rgb  # Rejected Hit
     nc.GetColorRGB("Lime", rgb)
     rgbPoints += [0.] + rgb  # Unambiguous Hit
-    nc.GetColorRGB("Green", rgb)
+    if args.detail:
+        nc.GetColorRGB("Green", rgb)
+    else:
+        nc.GetColorRGB("Lime", rgb)
     rgbPoints += [1.] + rgb  # Accepted Ambiguity
     nc.GetColorRGB("Maroon", rgb)
     rgbPoints += [2.] + rgb  # Rejected Ambiguity
-    if maxAmb > 2:
+    if args.detail and maxAmb > 2:
         nc.GetColorRGB("Black", rgb)
         rgbPoints += [float(maxAmb)] + rgb  # Rejected Ambiguity
     cLUT.RGBPoints = rgbPoints
@@ -133,7 +137,7 @@ if args.pcaFile:
     if args.colourColumn == 'Q':
         nc.GetColorRGB("Lime", rgb)
     else:
-        nc.GetColorRGB("Magenta", rgb)
+        nc.GetColorRGB("Blue", rgb)
     cylinder2Display.DiffuseColor = rgb
     cylinder2Display.Orientation = [np.rad2deg(np.arcsin(direction[2])),
                                     0.,
