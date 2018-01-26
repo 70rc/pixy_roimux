@@ -7,7 +7,7 @@ import vtk
 import paraview.simple as pv
 
 
-description = "ParaView python script to generate 3D event displays from 3D spacepoint data created with pixy_roimux. Run with ParaView pvpython."
+description = "ParaView python script to generate 3D event displays from 3D spacepoint data created with pixy_roimux."
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("runParamsFile")
 parser.add_argument("hitsFile", help="CSV file containing the 3D hits.")
@@ -161,12 +161,8 @@ renderView1.CameraViewUp = [0.0, 0.0, -1.0]
 renderView1.ViewSize = [800, 1000]
 
 if createPlot == "view":
-    pv.ExportView(args.plotFile,
-            view=renderView1)
+    pv.ExportView(args.plotFile, view=renderView1)
 elif createPlot == "screenshot":
-    pv.SaveScreenshot(args.plotFile,
-            magnification=2,
-            quality=100,
-            view=renderView1)
+    pv.SaveScreenshot(args.plotFile, magnification=2, quality=100, view=renderView1)
 else:
     pv.Interact(view=renderView1)
